@@ -1,0 +1,19 @@
+<component name="libraryTable">
+  <library name="codesize-1.1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Robocode/libs/codesize-1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Robocode/libs/picocontainer-2.14.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Robocode/libs/robocode.battle-1.9.2.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Robocode/libs/robocode.core-1.9.2.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Robocode/libs/robocode.host-1.9.2.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Robocode/libs/robocode.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Robocode/libs/robocode.repository-1.9.2.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Robocode/libs/robocode.sound-1.9.2.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Robocode/libs/robocode.ui.editor-1.9.2.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Robocode/libs/robocode.ui-1.9.2.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/Robocode/libs/roborumble.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
