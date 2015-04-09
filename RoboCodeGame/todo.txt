@@ -1,0 +1,5 @@
+put robocode game folder here and select it as 
+
+working directory in your run configuration
+VM options: -Xmax512M
+Main class: robocode.Robocode
