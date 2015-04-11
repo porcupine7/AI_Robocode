@@ -6,15 +6,13 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import fhooe.ai.data.EnemiesCache;
+import fhooe.ai.data.Enemy;
 import fhooe.ai.movement.AntiGravityMovement;
 import fhooe.ai.movement.SurferMovement;
+import fhooe.ai.radar.OldestScannedRadar;
 import fhooe.ai.radar.Radar;
-import robocode.AdvancedRobot;
-import robocode.CustomEvent;
-import robocode.HitByBulletEvent;
-import robocode.HitWallEvent;
-import robocode.RadarTurnCompleteCondition;
-import robocode.ScannedRobotEvent;
+import robocode.*;
 
 // API help : http://robocode.sourceforge.net/docs/robocode/robocode/Robot.html
 
@@ -29,7 +27,7 @@ public class TestRobot extends AdvancedRobot {
     private AntiGravityMovement mAntiGravityMovement;
     private SurferMovement mSurferMovement;
     private List<EnemyBulletWave> mBulletWaves = new ArrayList<>();
-    private Radar mRadar = new Radar(this);
+    private Radar mRadar;
 
     public Enemy getMainEnemy() {
         return mMainEnemy;
@@ -56,9 +54,8 @@ public class TestRobot extends AdvancedRobot {
     public void run() {
         // Initialization of the robot
         setColors(Color.blue, Color.white, Color.black); // body,gun,radar
-        addCustomEvent(new
-                RadarTurnCompleteCondition(this));
 
+        addCustomEvent(new RadarTurnCompleteCondition(this));
         addCustomEvent(new DetectBulletFiredCondition(this));
 
         //turn robot radar and gun independently
@@ -70,20 +67,22 @@ public class TestRobot extends AdvancedRobot {
         mAntiGravityMovement = new AntiGravityMovement(this);
         mSurferMovement = new SurferMovement(this,mAntiGravityMovement);
 
-        setTurnRadarRightRadians(Double.POSITIVE_INFINITY);
+        //init radar
+        mRadar = new OldestScannedRadar(this);
+        mRadar.init();
+        System.out.println("Start2");
 
 
         // Robot main loop
         while (true) {
+            mRadar.doScan();
+
             mAntiGravityMovement.calcGravity();
-
-
             if (mBulletWaves.size() > 0) {
                 mSurferMovement.doSurfing();
             } else {
                 mSurferMovement.doSurfing();
-
-//                mAntiGravityMovement.doGravityMove();
+                //mAntiGravityMovement.doGravityMove();
             }
             execute();
 
@@ -106,23 +105,26 @@ public class TestRobot extends AdvancedRobot {
      * onScannedRobot: What to do when you see another robot
      */
     public void onScannedRobot(ScannedRobotEvent e) {
-//        setTurnRadarLeftRadians(getRadarTurnRemainingRadians());
         mEnemiesCache.addEvent(e);
-
+        mRadar.scannedRobot(e);
     }
 
-
-
+    @Override
+    public void onRobotDeath(RobotDeathEvent event) {
+        super.onRobotDeath(event);
+        mEnemiesCache.removeEnemy(event.getName());
+        mRadar.onRobotDeath(event.getName());
+    }
 
     @Override
     public void onCustomEvent(CustomEvent event) {
         super.onCustomEvent(event);
         if (event.getCondition() instanceof RadarTurnCompleteCondition) {
-//            mRadar.sweep();
+            System.out.println("Completed turning!");
         } else if (event.getCondition() instanceof DetectBulletFiredCondition) {
             DetectBulletFiredCondition firedCondition = (DetectBulletFiredCondition) event.getCondition();
 //            mBulletWaves.addAll(firedCondition.getDetectedWaves());
-            System.out.println("Added waves "+mBulletWaves.size());
+            //System.out.println("Added waves "+mBulletWaves.size());
         }
     }
 

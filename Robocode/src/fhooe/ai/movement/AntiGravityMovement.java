@@ -4,9 +4,9 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import fhooe.ai.Enemy;
+import fhooe.ai.data.Enemy;
 import fhooe.ai.GravityPoint;
-import fhooe.ai.MyUtils;
+import fhooe.ai.util.MyUtils;
 import fhooe.ai.TestRobot;
 import robocode.util.Utils;
 

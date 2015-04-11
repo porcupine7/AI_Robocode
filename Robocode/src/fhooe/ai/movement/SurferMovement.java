@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import fhooe.ai.Enemy;
+import fhooe.ai.data.Enemy;
 import fhooe.ai.EnemyBulletWave;
 import fhooe.ai.GravityPoint;
-import fhooe.ai.MyUtils;
+import fhooe.ai.util.MyUtils;
 import fhooe.ai.TestRobot;
 import robocode.util.Utils;
 
@@ -81,10 +81,10 @@ public class SurferMovement {
 
 
             if (wave.getEvadeDirection() == Direction.FORWARD) {
-                // turn 90° from bullet
+                // turn 90ï¿½ from bullet
                 mSurfDirection = angle - (Math.PI / 2);
             } else {
-                // turn 90° from bullet
+                // turn 90ï¿½ from bullet
                 mSurfDirection = angle + (Math.PI / 2);
             }
 
@@ -96,10 +96,10 @@ public class SurferMovement {
                 mSurfDirection += (Math.PI / 2);
 
 //                if (mDirection == Direction.FORWARD) {
-//                    // turn 90° to enemy
+//                    // turn 90ï¿½ to enemy
 //                    mSurfDirection += (Math.PI / 2);
 //                } else {
-//                    // turn 90° to enemy
+//                    // turn 90ï¿½ to enemy
 //                    mSurfDirection -= (Math.PI / 2);
 //                }
             }

@@ -1,9 +1,12 @@
-package fhooe.ai;
+package fhooe.ai.data;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import fhooe.ai.GravityPoint;
+import fhooe.ai.util.MyUtils;
+import fhooe.ai.TestRobot;
 import robocode.ScannedRobotEvent;
 
 /**

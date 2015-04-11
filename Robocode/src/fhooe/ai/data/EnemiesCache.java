@@ -1,8 +1,9 @@
-package fhooe.ai;
+package fhooe.ai.data;
 
 import java.util.Map;
 import java.util.TreeMap;
 
+import fhooe.ai.TestRobot;
 import robocode.ScannedRobotEvent;
 
 /**
@@ -35,6 +36,10 @@ public class EnemiesCache {
 
   public int nrOfEnemies() {
     return mNameEnemyMap.keySet().size();
+  }
+
+  public void removeEnemy(String enemyName){
+     mNameEnemyMap.remove(enemyName);
   }
 
   @Override

@@ -1,4 +1,4 @@
-package fhooe.ai;
+package fhooe.ai.util;
 
 import java.awt.geom.Point2D;
 
