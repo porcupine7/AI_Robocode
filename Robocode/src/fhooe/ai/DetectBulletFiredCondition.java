@@ -41,12 +41,12 @@ public class DetectBulletFiredCondition extends Condition {
             double energyChange = enemy.getLastEvent().getEnergy() - enemy.getEnergy();
             double absBearing = enemy.getBearingRadians() + mRobot.getHeadingRadians();
 
-            if (energyChange < 3.01 && energyChange >= 0.3 && enemy.getLastEvent().getEnergy() > 0) {
+            if (energyChange < 3 && energyChange >= 0.1 && enemy.getLastEvent().getEnergy() > 0) {
                 //enemy fired bullet!!
                 //System.out.println("enemy fired bullet!!");
 
                 EnemyBulletWave ew = new EnemyBulletWave();
-                ew.setFireTime(mRobot.getTime() - 1);
+                ew.setFireTime(mRobot.getTime() - 2);
                 ew.setBulletVelocity(Rules.getBulletSpeed(energyChange));
 
                 // todo get values from one tick before

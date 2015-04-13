@@ -8,11 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import fhooe.ai.data.Enemy;
 import fhooe.ai.EnemyBulletWave;
 import fhooe.ai.GravityPoint;
-import fhooe.ai.util.MyUtils;
 import fhooe.ai.TestRobot;
+import fhooe.ai.util.MyUtils;
 import robocode.util.Utils;
 
 /**
@@ -32,13 +31,16 @@ public class SurferMovement {
     private AntiGravityMovement mGravityMovement;
     private Random mRandom = new Random();
     private Direction mDirection = Direction.UNDEFINED;
-    private Direction mLastDirection = Direction.UNDEFINED;
-    private long mLastDirectionChange = 0;
     //for debugging only
     private double mSurfDirection = 0;
     private double mActualDirection = 0;
 
     public static final boolean log=false;
+
+    private int mDirectionChange =0;
+    private int myTick =0;
+    private boolean mProblemMode = false;
+    private double mDirectionOffset = 0;
 
 
     public SurferMovement(TestRobot _robot, AntiGravityMovement _antiGravityMovement) {
@@ -50,9 +52,24 @@ public class SurferMovement {
 
 
     public void doSurfing() {
+    myTick++;
+        if(myTick > 20 && !mProblemMode){
+            myTick =0;
+            //reset direction change count every x ticks
+            mDirectionChange = 0;
+        }
+
+        //gravity movement
+
+        GravityPoint gravityPoint = mGravityMovement.getGravityCenter();
+        double gravityAngle = MyUtils.absoluteBearing(mRobot.getPosition(), gravityPoint.getPosition());
+        double gravityForce = gravityPoint.getPower() / 50f;
 
 
-        //remove old waves
+
+        //region wave movement
+
+        //remove waves that already passed the game field
         List<EnemyBulletWave> removeList = new ArrayList<>();
         for (EnemyBulletWave bulletWave : mRobot.getBulletWaves()) {
             if (bulletWave.getDistanceTraveled(mRobot.getTime()) > mRobot.getBattleFieldWidth()) {
@@ -60,6 +77,7 @@ public class SurferMovement {
             }
         }
         mRobot.getBulletWaves().removeAll(removeList);
+
 
         if (mRobot.getBulletWaves().size() > 0) {
             EnemyBulletWave wave = mRobot.getBulletWaves().get(0);
@@ -88,43 +106,57 @@ public class SurferMovement {
                 mSurfDirection = angle + (Math.PI / 2);
             }
 
+
+            //accumulate movement
+            if (gravityForce > 1) {
+                //gravity force very big, ignore wave surfing
+                mActualDirection = gravityAngle;
+            } else {
+                mActualDirection = (mSurfDirection * (1 - gravityForce)) + (gravityAngle * gravityForce);
+            }
+
         } else {
-            Enemy enemy = mRobot.getMainEnemy();
-            if (enemy != null) {
+//no waves present, use anti gravity movement
+            if(mProblemMode){
+                if(myTick > 6){
+                    mDirectionOffset = 0;
+                    mDirectionChange = 0;
+                    myTick = 0;
+                    mProblemMode = false;
+                    System.out.println("Problem mode off");
+                }
+            }else {
+                if(mDirectionChange > 3){
+                    //danger ahead, turn 90 degree
+                    System.out.println("Problem detected");
+                    if (mRandom.nextFloat() > 0.5) {
 
-                mSurfDirection = MyUtils.absoluteBearing(enemy.getPosition(), mRobot.getPosition());
-                mSurfDirection += (Math.PI / 2);
+                        mDirectionOffset =  (Math.PI / 2);
+                    } else {
+                        mDirectionOffset = -(Math.PI / 2);
+                    }
+                    myTick = 0;
+                    mProblemMode = true;
+                }
 
-//                if (mDirection == Direction.FORWARD) {
-//                    // turn 90� to enemy
-//                    mSurfDirection += (Math.PI / 2);
-//                } else {
-//                    // turn 90� to enemy
-//                    mSurfDirection -= (Math.PI / 2);
-//                }
+
+                if(gravityForce > 5){
+                    //don't mess around with direction if gravity force is very big
+                    // this should help to escape the wall and corners
+                    mDirectionOffset =0;
+                }
+
+                mActualDirection = gravityAngle -mDirectionOffset;
             }
 
         }
 
 
-        //accumulate movement
-        GravityPoint gravityPoint = mGravityMovement.getGravityCenter();
-        double gravityAngle = MyUtils.absoluteBearing(mRobot.getPosition(), gravityPoint.getPosition());
-        double gravityInfluence = gravityPoint.getPower() / 50f;
+        turnAndMove(mActualDirection);
 
-
-
-
-
-        if (gravityInfluence > 1) {
-            mActualDirection = gravityAngle;
-        } else {
-            gravityAngle = MyUtils.normaliseHeading(gravityAngle);
-            mActualDirection = (mSurfDirection * (1 - gravityInfluence)) + (gravityAngle * gravityInfluence);
-        }
 
         if(log){
-            System.out.println("gravity influence: " + gravityInfluence);
+            System.out.println("gravity influence: " + gravityForce);
             System.out.println("angle gravity: " + gravityAngle);
             System.out.println("angle surfer: " + mSurfDirection);
             System.out.println("dir " + mDirection);
@@ -132,35 +164,45 @@ public class SurferMovement {
 
         }
 
-        turnAndMove(mActualDirection);
     }
 
 
     public void turnAndMove(double goAngle) {
 
 
-        mLastDirection = mDirection;
+        int pointDir;
+        mRobot.setAhead(1000 * (pointDir = (Math.abs(goAngle - mRobot.getHeadingRadians()) < Math.PI / 2 ? 1 : -1)));
+        mRobot.setTurnRightRadians(Utils.normalRelativeAngle(goAngle + (pointDir == -1 ? Math.PI : 0) - mRobot.getHeadingRadians()));
 
-        double angle =
-                Utils.normalRelativeAngle(goAngle - mRobot.getHeadingRadians());
-        if (Math.abs(angle) > (Math.PI / 2)) {
-            if (mDirection == Direction.BACKWARD || (mRobot.getTime() - mLastDirectionChange) > 77) { // prevent robot from changing direction all the time
-                moveBackward(angle);
-            } else {
-                moveForWard(angle);
-            }
-        } else {
+        Direction newDirection =  Direction.fromInt(pointDir);
 
-            if (mDirection == Direction.FORWARD || (mRobot.getTime() - mLastDirectionChange) > 77) {// prevent robot from changing direction all the time
-                moveForWard(angle);
-            } else {
-                moveBackward(angle);
-            }
+        if (newDirection != mDirection) {
+            mDirection = newDirection;
+            mDirectionChange ++;
         }
 
-        if (mLastDirection != mDirection) {
-            mLastDirectionChange = mRobot.getTime();
-        }
+//        mLastDirection = mDirection;
+//
+//        double angle =
+//                Utils.normalRelativeAngle(goAngle - mRobot.getHeadingRadians());
+//        if (Math.abs(angle) > (Math.PI / 2)) {
+//            if (mDirection == Direction.BACKWARD || (mRobot.getTime() - mLastDirectionChange) > 77) { // prevent robot from changing direction all the time
+//                moveBackward(angle);
+//            } else {
+//                moveForWard(angle);
+//            }
+//        } else {
+//
+//            if (mDirection == Direction.FORWARD || (mRobot.getTime() - mLastDirectionChange) > 77) {// prevent robot from changing direction all the time
+//                moveForWard(angle);
+//            } else {
+//                moveBackward(angle);
+//            }
+//        }
+//
+//        if (mLastDirection != mDirection) {
+//            mLastDirectionChange = mRobot.getTime();
+//        }
     }
 
     private void moveBackward(double angle) {
@@ -174,6 +216,8 @@ public class SurferMovement {
     }
 
     private void moveForWard(double angle) {
+
+
         if (angle < 0) {
             mRobot.setTurnLeftRadians(-1 * angle);
         } else {
@@ -184,21 +228,21 @@ public class SurferMovement {
     }
 
 
-    /**
-     * Adjusts the heading of the tank so he wont hit a wall.
-     * CREDIT: Iterative WallSmoothing by Kawigi
-     *
-     * @param botLocation the location fo the robot
-     * @param angle       the current heading
-     * @param _direction  forward or backward
-     * @return return absolute angle to move at after account for WallSmoothing
-     */
-    public double wallSmoothing(Point2D.Double botLocation, double angle, Direction _direction) {
-        while (!mPlayField.contains(MyUtils.project(botLocation, angle, WALL_STICK))) {
-            angle += _direction.getNumVal() * 0.1;
-        }
-        return angle;
-    }
+//    /**
+//     * Adjusts the heading of the tank so he wont hit a wall.
+//     * CREDIT: Iterative WallSmoothing by Kawigi
+//     *
+//     * @param botLocation the location fo the robot
+//     * @param angle       the current heading
+//     * @param _direction  forward or backward
+//     * @return return absolute angle to move at after account for WallSmoothing
+//     */
+//    public double wallSmoothing(Point2D.Double botLocation, double angle, Direction _direction) {
+//        while (!mPlayField.contains(MyUtils.project(botLocation, angle, WALL_STICK))) {
+//            angle += _direction.getValue() * 0.1;
+//        }
+//        return angle;
+//    }
 
 
     public void draw(Graphics2D _g) {
@@ -246,6 +290,12 @@ public class SurferMovement {
         Point2D pointAct = MyUtils.project(mRobot.getPosition(), mActualDirection, 1000);
         _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) pointAct.getX(), (int) pointAct.getY());
         _g.fillOval((int) pointAct.getX() - (d / 2), (int) pointAct.getY() - (d / 2), d, d);
+
+        //draw problem mode indicator
+        if (mProblemMode) {
+            _g.setColor(Color.ORANGE);
+            _g.fillOval((int) mRobot.getPosition().getX() - (d / 2), (int) mRobot.getPosition().getY() - (d / 2), d, d);
+        }
 
 
     }

@@ -124,7 +124,7 @@ public class TestRobot extends AdvancedRobot {
         } else if (event.getCondition() instanceof DetectBulletFiredCondition) {
             DetectBulletFiredCondition firedCondition = (DetectBulletFiredCondition) event.getCondition();
 //            mBulletWaves.addAll(firedCondition.getDetectedWaves());
-            //System.out.println("Added waves "+mBulletWaves.size());
+            System.out.println("Added waves "+firedCondition.getDetectedWaves().size());
         }
     }
 
