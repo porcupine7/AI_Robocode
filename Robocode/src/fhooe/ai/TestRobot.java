@@ -93,6 +93,31 @@ public class TestRobot extends AdvancedRobot {
      * onHitByBullet: What to do when you're hit by a bullet
      */
     public void onHitByBullet(HitByBulletEvent e) {
+        // If the mEnemyWaves collection is empty, we must have missed the
+        // detection of this wave somehow.
+        if (!mBulletWaves.isEmpty()) {
+            Point2D.Double hitBulletLocation = new Point2D.Double(
+                    e.getBullet().getX(), e.getBullet().getY());
+            EnemyBulletWave hitWave = null;
+
+            // look through the EnemyWaves, and find one that could've hit us.
+            for (EnemyBulletWave ew : mBulletWaves) {
+                if (Math.abs(ew.getDistanceTraveled(getTime()) -
+                        getPosition().distance(ew.getFireLocation())) < 50
+                        && Math.abs(Rules.getBulletSpeed(e.getBullet().getPower())
+                        - ew.getBulletVelocity()) < 0.001) {
+                    hitWave = ew;
+                    break;
+                }
+            }
+
+            if (hitWave != null) {
+                mSurferMovement.logHit(hitWave, hitBulletLocation);
+
+                // We can remove this wave now, of course.
+                mBulletWaves.remove(mBulletWaves.lastIndexOf(hitWave));
+            }
+        }
     }
 
     /**
@@ -123,8 +148,8 @@ public class TestRobot extends AdvancedRobot {
             System.out.println("Completed turning!");
         } else if (event.getCondition() instanceof DetectBulletFiredCondition) {
             DetectBulletFiredCondition firedCondition = (DetectBulletFiredCondition) event.getCondition();
-//            mBulletWaves.addAll(firedCondition.getDetectedWaves());
-            //System.out.println("Added waves "+mBulletWaves.size());
+            mBulletWaves.addAll(firedCondition.getDetectedWaves());
+            System.out.println("Added waves " + mBulletWaves.size());
         }
     }
 
