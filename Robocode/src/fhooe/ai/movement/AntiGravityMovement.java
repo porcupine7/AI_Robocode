@@ -34,7 +34,7 @@ public class AntiGravityMovement {
 
     private GravityPoint mGravityCenter;
 
-   public void calcGravity() {
+   public void doAntiGravity() {
 
         double xforce = 0;
         double yforce = 0;
@@ -100,7 +100,7 @@ public class AntiGravityMovement {
 
     /**
      * Executes the gravity move
-     * Make sure to call calcGravity before calling this.
+     * Make sure to call doAntiGravity before calling this.
      */
     public void doGravityMove(){
         goTo(mGravityCenter.getPosition().getX(), mGravityCenter.getPosition().getY());

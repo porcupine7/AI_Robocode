@@ -9,10 +9,12 @@ import java.util.List;
 import fhooe.ai.data.EnemiesCache;
 import fhooe.ai.data.Enemy;
 import fhooe.ai.movement.AntiGravityMovement;
+import fhooe.ai.movement.CombinedMovement;
 import fhooe.ai.movement.SurferMovement;
 import fhooe.ai.radar.OldestScannedRadar;
 import fhooe.ai.radar.Radar;
 import robocode.*;
+import robocode.util.Utils;
 
 // API help : http://robocode.sourceforge.net/docs/robocode/robocode/Robot.html
 
@@ -28,6 +30,7 @@ public class TestRobot extends AdvancedRobot {
     private SurferMovement mSurferMovement;
     private List<EnemyBulletWave> mBulletWaves = new ArrayList<>();
     private Radar mRadar;
+    private CombinedMovement mCombinedMovement;
 
     public Enemy getMainEnemy() {
         return mMainEnemy;
@@ -65,7 +68,8 @@ public class TestRobot extends AdvancedRobot {
 
         //initialize movement strategies
         mAntiGravityMovement = new AntiGravityMovement(this);
-        mSurferMovement = new SurferMovement(this,mAntiGravityMovement);
+        mSurferMovement = new SurferMovement(this);
+        mCombinedMovement = new CombinedMovement(this, mAntiGravityMovement,mSurferMovement);
 
         //init radar
         mRadar = new OldestScannedRadar(this);
@@ -77,13 +81,11 @@ public class TestRobot extends AdvancedRobot {
         while (true) {
             mRadar.doScan();
 
-            mAntiGravityMovement.calcGravity();
-            if (mBulletWaves.size() > 0) {
-                mSurferMovement.doSurfing();
-            } else {
-                mSurferMovement.doSurfing();
-                //mAntiGravityMovement.doGravityMove();
-            }
+            mAntiGravityMovement.doAntiGravity();
+            mSurferMovement.doSurfing();
+
+            //actual movement
+            mCombinedMovement.doMove();
             execute();
 
         }
@@ -132,6 +134,10 @@ public class TestRobot extends AdvancedRobot {
     public void onScannedRobot(ScannedRobotEvent e) {
         mEnemiesCache.addEvent(e);
         mRadar.scannedRobot(e);
+
+        double absBearing=e.getBearingRadians()+getHeadingRadians();
+        setTurnGunRightRadians(Utils.normalRelativeAngle(absBearing - getGunHeadingRadians()));
+        setFire(2);
     }
 
     @Override
@@ -149,7 +155,7 @@ public class TestRobot extends AdvancedRobot {
         } else if (event.getCondition() instanceof DetectBulletFiredCondition) {
             DetectBulletFiredCondition firedCondition = (DetectBulletFiredCondition) event.getCondition();
             mBulletWaves.addAll(firedCondition.getDetectedWaves());
-            System.out.println("Added waves " + mBulletWaves.size());
+            System.out.println("Added waves " + firedCondition.getDetectedWaves().size());
         }
     }
 
@@ -181,7 +187,7 @@ public class TestRobot extends AdvancedRobot {
             g.drawOval((int)enemy.getPosition().getX()-(d/2),(int)enemy.getPosition().getY()-(d/2),d,d);
         }
 
-        mSurferMovement.draw(g);
+        mCombinedMovement.draw(g);
     }
 }
 
