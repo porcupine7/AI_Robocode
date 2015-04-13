@@ -271,6 +271,17 @@ public class SurferMovement {
         return mSurfStats[index];
     }
 
+
+    // CREDIT: Iterative WallSmoothing by Kawigi
+    //   - return absolute angle to move at after account for WallSmoothing
+    // robowiki.net?WallSmoothing
+    public double wallSmoothing(Point2D.Double botLocation, double angle, int orientation) {
+        while (!mPlayField.contains(project(botLocation, angle, 160))) {
+            angle += orientation*0.05;
+        }
+        return angle;
+    }
+
     public Point2D.Double predictPosition(EnemyBulletWave surfWave, Direction direction) {
         Point2D.Double predictedPosition = (Point2D.Double)(mRobot.getPosition().clone());
         double predictedVelocity = mRobot.getVelocity();
@@ -283,7 +294,7 @@ public class SurferMovement {
         do {    // the rest of these code comments are rozu's
             moveAngle =
                     wallSmoothing(predictedPosition, absoluteBearing(surfWave.getFireLocation(),
-                            predictedPosition) + (direction.getNumVal() * (Math.PI/2)), direction)
+                            predictedPosition) + (direction.getValue() * (Math.PI/2)), direction.getValue())
                             - predictedHeading;
             moveDir = 1;
 
