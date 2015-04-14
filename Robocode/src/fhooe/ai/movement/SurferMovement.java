@@ -23,8 +23,8 @@ public class SurferMovement {
     // the amount of space we try to always have on either end of the tank
     // (extending straight out the front or back) before touching a wall.
     public static Rectangle2D.Double mPlayField;
-    public static int WALL_STICK = 200;
-    public static int WALL_DEAD_ZONE = 60;
+    public static int WALL_STICK = 250;
+    public static int WALL_DEAD_ZONE = 70;
     public static int BINS = 47; // SEGMENTS
     public static double mSurfStats[] = new double[BINS];
     private TestRobot mRobot;

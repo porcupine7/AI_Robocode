@@ -59,7 +59,12 @@ public class TestRobot extends AdvancedRobot {
      */
     public void run() {
         // Initialization of the robot
-        setColors(Color.blue, Color.white, Color.black); // body,gun,radar
+        /* Set some crazy colors! */
+        setBodyColor(Color.black);
+        setGunColor(Color.BLUE);
+        setRadarColor(Color.magenta);
+        setBulletColor(Color.CYAN);
+        setScanColor(new Color((float)Math.random(),(float)Math.random(),(float)Math.random()));
 
         addCustomEvent(new RadarTurnCompleteCondition(this));
         addCustomEvent(new DetectBulletFiredCondition(this));
@@ -157,11 +162,11 @@ public class TestRobot extends AdvancedRobot {
     public void onCustomEvent(CustomEvent event) {
         super.onCustomEvent(event);
         if (event.getCondition() instanceof RadarTurnCompleteCondition) {
-            System.out.println("Completed turning!");
+//            System.out.println("Completed turning!");
         } else if (event.getCondition() instanceof DetectBulletFiredCondition) {
             DetectBulletFiredCondition firedCondition = (DetectBulletFiredCondition) event.getCondition();
             mBulletWaves.addAll(firedCondition.getDetectedWaves());
-            System.out.println("Added waves " + firedCondition.getDetectedWaves().size());
+//            System.out.println("Added waves " + firedCondition.getDetectedWaves().size());
         }
     }
 
@@ -176,16 +181,16 @@ public class TestRobot extends AdvancedRobot {
         g.drawOval((int)getBattleFieldWidth()/2-50,(int)getBattleFieldHeight()/2-50,100,100);
 
         //draw waves
-        for (EnemyBulletWave bulletWave : mBulletWaves) {
-            int d = (int) bulletWave.getDistanceTraveled(getTime()+1)*2;
-            g.drawOval((int) bulletWave.getFireLocation().getX() - (d / 2), (int) bulletWave.getFireLocation().getY() - (d / 2), d, d);
-
-            double rotation = -bulletWave.getDirectAngle();
-            g.rotate(rotation, bulletWave.getFireLocation().getX(), bulletWave.getFireLocation().getY());
-
-            g.drawLine((int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY(), (int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY()+100);
-            g.rotate(-rotation, bulletWave.getFireLocation().getX(), bulletWave.getFireLocation().getY());
-        }
+//        for (EnemyBulletWave bulletWave : mBulletWaves) {
+//            int d = (int) bulletWave.getDistanceTraveled(getTime()+1)*2;
+//            g.drawOval((int) bulletWave.getFireLocation().getX() - (d / 2), (int) bulletWave.getFireLocation().getY() - (d / 2), d, d);
+//
+//            double rotation = -bulletWave.getDirectAngle();
+//            g.rotate(rotation, bulletWave.getFireLocation().getX(), bulletWave.getFireLocation().getY());
+//
+//            g.drawLine((int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY(), (int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY()+100);
+//            g.rotate(-rotation, bulletWave.getFireLocation().getX(), bulletWave.getFireLocation().getY());
+//        }
 
         // draw enemy positions
         for (Enemy enemy : mEnemiesCache.getEnemyMap().values()) {

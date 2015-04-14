@@ -16,7 +16,7 @@ public class Enemy {
   public static final int INVALID = -1;
   public static final int UPDATE_THRESHOLD = 16;
   public static final int MAX_EVENT_COUNT = 10;
-  public static final int GRAVITY_FORCE = -200000;
+  public static final int GRAVITY_FORCE = -400000;
   private final List<ScannedRobotEvent> mScanEvents;
   private final String mName;
   private ScannedRobotEvent mCurEvent;
