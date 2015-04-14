@@ -15,7 +15,7 @@ import robocode.util.Utils;
  */
 public class CombinedMovement {
 
-    public static final boolean log = false;
+    public static final boolean log = true;
     private TestRobot mRobot;
     private AntiGravityMovement mGravityMovement;
     private SurferMovement mSurferMovement;
@@ -49,7 +49,7 @@ public class CombinedMovement {
 
         if (!mProblemMode) {
 
-            if (mDirectionChange > 3) {
+            if (mDirectionChange > 2) {
                 //danger ahead, turn 90 degree
                 System.out.println("Problem detected");
                 if (mRandom.nextFloat() > 0.5) {
@@ -68,7 +68,7 @@ public class CombinedMovement {
             }
 
         }   else
-        if (mProblemMode && myTick > 6) {
+        if (mProblemMode && myTick > 5) {
             mOffsetAngle = 0;
             mDirectionChange = 0;
             myTick = 0;
@@ -90,11 +90,13 @@ public class CombinedMovement {
         mSurferAngle = mSurferMovement.getSurfDirection();
 
 
-        if (gravityForce > 5) {
+        if (gravityForce > 2) {
             //don't mess around with direction if gravity force is very big
             // this should help to escape the wall and corners
             mOffsetAngle = 0;
         }
+        mGravityAngle = MyUtils.normaliseHeading(mGravityAngle);
+        mSurferAngle = MyUtils.normaliseHeading(mSurferAngle);
 
         //accumulate movement
         if (gravityForce > 1) {
@@ -186,6 +188,7 @@ public class CombinedMovement {
 
         //draw problem mode indicator
         if (mProblemMode) {
+            d=20;
             _g.setColor(Color.ORANGE);
             _g.fillOval((int) mRobot.getPosition().getX() - (d / 2), (int) mRobot.getPosition().getY() - (d / 2), d, d);
         }

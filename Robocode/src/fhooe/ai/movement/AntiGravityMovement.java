@@ -22,10 +22,10 @@ public class AntiGravityMovement {
     public AntiGravityMovement(TestRobot _robot) {
         mRobot = _robot;
         mGravityCenter = new GravityPoint(mRobot.getPosition(), 0);
-        mCorners.add(new GravityPoint(new Point2D.Double(0, 0), -10000));
-        mCorners.add(new GravityPoint(new Point2D.Double(0, mRobot.getBattleFieldWidth()), -10000));
-        mCorners.add(new GravityPoint(new Point2D.Double(mRobot.getBattleFieldHeight(), 0), -10000));
-        mCorners.add(new GravityPoint(new Point2D.Double(mRobot.getBattleFieldHeight(), mRobot.getBattleFieldWidth()), -10000));
+        mCorners.add(new GravityPoint(new Point2D.Double(0, 0), -80000));
+        mCorners.add(new GravityPoint(new Point2D.Double(0, mRobot.getBattleFieldWidth()), -80000));
+        mCorners.add(new GravityPoint(new Point2D.Double(mRobot.getBattleFieldHeight(), 0), -80000));
+        mCorners.add(new GravityPoint(new Point2D.Double(mRobot.getBattleFieldHeight(), mRobot.getBattleFieldWidth()), -80000));
     }
 
     public GravityPoint getGravityCenter() {
@@ -70,15 +70,15 @@ public class AntiGravityMovement {
         /**The following four lines add wall avoidance.  They will only
          affect us if the bot is close to the walls due to the
          force from the walls decreasing at a power 3.**/
-        xforce += 600000 / Math.pow(MyUtils.getDistance(mRobot.getX(), mRobot.getY(), mRobot.getBattleFieldWidth(), mRobot.getY()),2.5);
-        xforce -= 600000/ Math.pow(MyUtils.getDistance(mRobot.getX(), mRobot.getY(), 0, mRobot.getY()), 2.5);
-        yforce += 600000 / Math.pow(MyUtils.getDistance(mRobot.getX(), mRobot.getY(), mRobot.getX(), mRobot.getBattleFieldHeight()), 2.5);
-        yforce -= 600000 / Math.pow(MyUtils.getDistance(mRobot.getX(),mRobot.getY(), mRobot.getX(), 0), 2.5);
+        xforce += 600000 / Math.pow(MyUtils.getDistance(mRobot.getX(), mRobot.getY(), mRobot.getBattleFieldWidth(), mRobot.getY()),2.1);
+        xforce -= 600000/ Math.pow(MyUtils.getDistance(mRobot.getX(), mRobot.getY(), 0, mRobot.getY()), 2.1);
+        yforce += 600000 / Math.pow(MyUtils.getDistance(mRobot.getX(), mRobot.getY(), mRobot.getX(), mRobot.getBattleFieldHeight()), 2.1);
+        yforce -= 600000 / Math.pow(MyUtils.getDistance(mRobot.getX(),mRobot.getY(), mRobot.getX(), 0), 2.1);
 
 
        for (GravityPoint gravityPoint : mCorners) {
            //Calculate the total force from this point on us
-           force = gravityPoint.getPower() / Math.pow(MyUtils.getDistance(mRobot.getX(), mRobot.getY(), gravityPoint.getPosition().x, gravityPoint.getPosition().y), 2.1);
+           force = gravityPoint.getPower() / Math.pow(MyUtils.getDistance(mRobot.getX(), mRobot.getY(), gravityPoint.getPosition().x, gravityPoint.getPosition().y), 1.8);
            //Find the bearing from the point to us
            ang = MyUtils.normaliseBearing(Math.PI / 2 - Math.atan2(mRobot.getY() - gravityPoint.getPosition().y, mRobot.getX() - gravityPoint.getPosition().x));
            //Add the components of this force to the total force in their
