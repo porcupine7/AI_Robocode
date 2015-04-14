@@ -8,6 +8,9 @@ import java.util.List;
 
 import fhooe.ai.data.EnemiesCache;
 import fhooe.ai.data.Enemy;
+import fhooe.ai.gun.GFGun;
+import fhooe.ai.gun.LAGun;
+import fhooe.ai.gun.WaveBullet;
 import fhooe.ai.movement.AntiGravityMovement;
 import fhooe.ai.movement.CombinedMovement;
 import fhooe.ai.movement.SurferMovement;
@@ -24,8 +27,8 @@ import robocode.util.Utils;
  */
 public class TestRobot extends AdvancedRobot {
     private final EnemiesCache mEnemiesCache = new EnemiesCache(this);
-
-
+    private  GFGun mGun = new GFGun(this);
+    private final LAGun mLAGun = new LAGun(this);
     private AntiGravityMovement mAntiGravityMovement;
     private SurferMovement mSurferMovement;
     private List<EnemyBulletWave> mBulletWaves = new ArrayList<>();
@@ -80,7 +83,6 @@ public class TestRobot extends AdvancedRobot {
         // Robot main loop
         while (true) {
             mRadar.doScan();
-
             mAntiGravityMovement.doAntiGravity();
             mSurferMovement.doSurfing();
 
@@ -134,7 +136,11 @@ public class TestRobot extends AdvancedRobot {
     public void onScannedRobot(ScannedRobotEvent e) {
         mEnemiesCache.addEvent(e);
         mRadar.scannedRobot(e);
-
+        //mLAGun.onScannedRobot(e);
+        //mGun.scannedRobot(e);
+        simpleTarget(e);
+    }
+    private void simpleTarget(ScannedRobotEvent e){
         double absBearing=e.getBearingRadians()+getHeadingRadians();
         setTurnGunRightRadians(Utils.normalRelativeAngle(absBearing - getGunHeadingRadians()));
         setFire(2);
