@@ -95,7 +95,7 @@ public class TestRobot extends AdvancedRobot {
         // Robot main loop
         while (true) {
             mRadar.doScan();
-            turnRadarRightRadians(Double.POSITIVE_INFINITY);
+            //turnRadarRightRadians(Double.POSITIVE_INFINITY);
 
             mAntiGravityMovement.doAntiGravity();
             mSurferMovement.doSurfing();
@@ -149,7 +149,7 @@ public class TestRobot extends AdvancedRobot {
      */
     public void onScannedRobot(ScannedRobotEvent event) {
         mEnemiesCache.addEvent(event);
-        if (getGunHeat() < 1) {
+        if (getGunHeat() < 2.5) {
             mRadar.lock(event.getName());
             System.out.println("-- Lock Gun Heat: "+getGunHeat());
         } else {
