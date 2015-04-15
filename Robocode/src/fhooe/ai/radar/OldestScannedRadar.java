@@ -51,11 +51,12 @@ public class OldestScannedRadar implements Radar {
     }
 
     public void lock(String enemyName) {
-        System.out.println("Locked at " + enemyName);        mLockedEnemy = enemyName;
+       //System.out.println("Locked at " + enemyName);
+        mLockedEnemy = enemyName;
     }
 
     public void unlock() {
-        System.out.println("\n---Unlocked");
+       // System.out.println("\n---Unlocked");
         mLockedEnemy = "";
     }
 

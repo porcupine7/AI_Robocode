@@ -15,19 +15,17 @@ import java.util.List;
  * GuessFactor Targeting gun with basic segmentation
  */
 public class GFTGun implements Gun {
-    private static final double BULLET_POWER = 1.5;
+    private static final double BULLET_POWER = 1.9;
 
     private static double lateralDirection;
     private static double lastEnemyVelocity;
 
     private final TestRobot mRobot;
-    GFTMovement movement;
 
 
 
     public GFTGun(TestRobot _robot){
         mRobot=_robot;
-        movement= new GFTMovement(mRobot);
     }
 
     /**
@@ -56,7 +54,6 @@ public class GFTGun implements Gun {
         if (mRobot.getEnergy() >= BULLET_POWER) {
             mRobot.addCustomEvent(wave);
         }
-        //movement.onScannedRobot(e);
         mRobot.setTurnRadarRightRadians(Utils.normalRelativeAngle(enemyAbsoluteBearing - mRobot.getRadarHeadingRadians()) * 2);
 
     }
