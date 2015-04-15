@@ -149,12 +149,12 @@ public class TestRobot extends AdvancedRobot {
      */
     public void onScannedRobot(ScannedRobotEvent event) {
         mEnemiesCache.addEvent(event);
-        if (getGunHeat() < 2.5) {
+        if (getGunHeat() < 1) {
             mRadar.lock(event.getName());
-            System.out.println("-- Lock Gun Heat: "+getGunHeat());
+            //System.out.println("-- Lock Gun Heat: "+getGunHeat());
         } else {
             mRadar.unlock();
-            System.out.println("-- Unlock Gun Heat: "+getGunHeat());
+            //System.out.println("-- Unlock Gun Heat: "+getGunHeat());
         }
         mRadar.scannedRobot(event);
         mGun.scannedRobot(event);

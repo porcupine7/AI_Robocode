@@ -8,8 +8,9 @@ import java.awt.geom.Rectangle2D;
 
 /**
  * Created by Christian on 15.04.2015.
- *
+ * NOT used
  */
+@Deprecated
 public class GFTMovement {
     private static final double BATTLE_FIELD_WIDTH = 800;
     private static final double BATTLE_FIELD_HEIGHT = 600;
