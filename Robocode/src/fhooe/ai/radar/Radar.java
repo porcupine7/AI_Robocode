@@ -17,6 +17,8 @@ public interface Radar {
 
     boolean isLocked();
 
+    String getLockedEnemy();
+
     void onRobotDeath(String robotName);
 
     void scannedRobot(ScannedRobotEvent _event);

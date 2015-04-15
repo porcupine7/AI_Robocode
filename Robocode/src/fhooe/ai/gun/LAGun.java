@@ -11,7 +11,7 @@ import java.util.ArrayList;
 /**
  * Created by Christian on 14.04.2015.
  */
-public class LAGun {
+public class LAGun implements Gun{
     final static double FIRE_POWER=2;
     final static double FIRE_SPEED=20-FIRE_POWER*3;
     final static double BULLET_DAMAGE=10;
@@ -29,7 +29,8 @@ public class LAGun {
         enemyEnergy=100;
     }
 
-    public void onScannedRobot(ScannedRobotEvent e){
+    @Override
+    public void scannedRobot(ScannedRobotEvent e){
         double absBearing=e.getBearingRadians()+mRobot.getHeadingRadians();
         //chooseDirection(GFTUtils.project(new Point2D.Double(mRobot.getX(),mRobot.getY()),e.getDistance(),absBearing));
 

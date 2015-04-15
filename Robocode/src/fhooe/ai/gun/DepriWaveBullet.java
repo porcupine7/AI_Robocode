@@ -6,15 +6,15 @@ import robocode.util.Utils;
 /**
  * Created by Christian on 14.04.2015.
  */
-public class WaveBullet
+public class DepriWaveBullet
 {
     private double startX, startY, startBearing, power;
     private long   fireTime;
     private int    direction;
     private int[]  returnSegment;
 
-    public WaveBullet(double x, double y, double bearing, double power,
-                      int direction, long time, int[] segment)
+    public DepriWaveBullet(double x, double y, double bearing, double power,
+                           int direction, long time, int[] segment)
     {
         startX         = x;
         startY         = y;

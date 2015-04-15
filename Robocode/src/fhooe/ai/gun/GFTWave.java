@@ -2,9 +2,11 @@ package fhooe.ai.gun;
 
 import robocode.AdvancedRobot;
 import robocode.Condition;
+import robocode.ScannedRobotEvent;
 import robocode.util.Utils;
 
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  * Created by Christian on 14.04.2015.
@@ -20,6 +22,9 @@ public class GFTWave extends Condition {
     private static final double MAX_DISTANCE = 1000;
     private static final int DISTANCE_INDEXES = 5;
     private static final int VELOCITY_INDEXES = 5;
+    /**
+     * Visit Count Stats
+     */
     private static final int BINS = 25;
     private static final int MIDDLE_BIN = (BINS - 1) / 2;
     private static final double MAX_ESCAPE_ANGLE = 0.7;
@@ -79,3 +84,4 @@ public class GFTWave extends Condition {
         return mostVisited;
     }
 }
+
