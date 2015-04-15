@@ -15,7 +15,11 @@ import java.util.List;
  * GuessFactor Targeting gun with basic segmentation
  */
 public class GFTGun implements Gun {
+    public static final boolean DEBUG = true;
+    private static final double BULLET_MAX_POWER = 3.0;
+    private static final double BULLET_MIN_POWER = 0.5;
     private static final double BULLET_POWER = 1.9;
+    private static final double MAXIMAL_ENEMY_DISTANCE = 800;  
 
     private static double lateralDirection;
     private static double lastEnemyVelocity;
@@ -44,8 +48,8 @@ public class GFTGun implements Gun {
         wave.gunLocation = new Point2D.Double(mRobot.getX(), mRobot.getY());
         GFTWave.targetLocation = GFTUtils.project(wave.gunLocation, enemyAbsoluteBearing, enemyDistance);
         wave.lateralDirection = lateralDirection;
-        double firePower = BULLET_POWER;
-        wave.bulletPower = BULLET_POWER;
+        double firePower = (BULLET_MAX_POWER - (enemyDistance/MAXIMAL_ENEMY_DISTANCE)*BULLET_MAX_POWER);
+        wave.bulletPower = firePower < BULLET_MIN_POWER ? BULLET_MIN_POWER : firePower;
         wave.setSegmentations(enemyDistance, enemyVelocity, lastEnemyVelocity);
         lastEnemyVelocity = enemyVelocity;
         wave.bearing = enemyAbsoluteBearing;
@@ -54,7 +58,14 @@ public class GFTGun implements Gun {
         if (mRobot.getEnergy() >= BULLET_POWER) {
             mRobot.addCustomEvent(wave);
         }
-        mRobot.setTurnRadarRightRadians(Utils.normalRelativeAngle(enemyAbsoluteBearing - mRobot.getRadarHeadingRadians()) * 2);
+
+        if(DEBUG){
+            System.out.println("---- Shot with power: " + wave.bulletPower);
+
+        }
+
+        // radar controlling is handled in RADAR :)
+        //mRobot.setTurnRadarRightRadians(Utils.normalRelativeAngle(enemyAbsoluteBearing - mRobot.getRadarHeadingRadians()) * 2);
 
     }
 
@@ -62,7 +73,10 @@ public class GFTGun implements Gun {
     @Override
     public void scannedRobot (ScannedRobotEvent e){
         if(e.getName().equals(mRobot.getRadar().getLockedEnemy())) {
-            System.out.println("\n-- Gun scanned "+e.getName());
+            if(DEBUG) {
+                System.out.println("-- Gun scanned enemy: " + e.getName());
+                System.out.println("---- Distance: "+e.getDistance()+" | Velocity: "+e.getVelocity());
+            }
             guessFactorTargeting(e);
         }
     }
