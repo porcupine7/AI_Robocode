@@ -1,10 +1,9 @@
 package fhooe.ai.movement;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 import fhooe.ai.EnemyBulletWave;
 import fhooe.ai.TestRobot;
@@ -23,98 +22,115 @@ public class SurferMovement {
     // the amount of space we try to always have on either end of the tank
     // (extending straight out the front or back) before touching a wall.
     public static Rectangle2D.Double mPlayField;
-    public static int WALL_STICK = 250;
-    public static int WALL_DEAD_ZONE = 70;
+    public static int WALL_STICK = 60;
+    public static int WALL_DEAD_ZONE = 60;
     public static int BINS = 47; // SEGMENTS
     public static double mSurfStats[] = new double[BINS];
     private TestRobot mRobot;
-    private Random mRandom = new Random();
 
+    private double mSurfAngle = Double.NaN;
+    private Direction mSurfDirection;
 
-    public double getSurfDirection() {
-        return mSurfDirection;
+    public void setCombinedMovement(CombinedMovement _combinedMovement) {
+        mCombinedMovement = _combinedMovement;
     }
 
-    private double mSurfDirection = 0;
-
+    private CombinedMovement mCombinedMovement;
 
     public SurferMovement(TestRobot _robot) {
         mRobot = _robot;
         mPlayField
                 = new Rectangle2D.Double(WALL_DEAD_ZONE, WALL_DEAD_ZONE, mRobot.getBattleFieldWidth() - (WALL_DEAD_ZONE * 2), mRobot.getBattleFieldHeight() - (WALL_DEAD_ZONE * 2));
+
     }
 
+    public double getSurfAngle() {
+        return mSurfAngle;
+    }
 
     public void doSurfing() {
 
 
         cleanWaves();
-
-        if (mRobot.getBulletWaves().size() > 0) {
-
-            EnemyBulletWave wave = mRobot.getBulletWaves().get(0);
+        EnemyBulletWave wave = getClosestSurfableWave();
+        if (wave != null) {
 
             double dangerBackward = checkDanger(wave, Direction.BACKWARD);
             double dangerForward = checkDanger(wave, Direction.FORWARD);
 
             if (log) {
-                System.out.println("danger backward: " + dangerBackward);
-                System.out.println("danger forward: " + dangerForward);
+//                System.out.println("danger backward: " + dangerBackward);
+//                System.out.println("danger forward: " + dangerForward);
             }
 
             double angle = MyUtils.absoluteBearing(wave.getFireLocation(), mRobot.getPosition());
 
-            if (dangerBackward < dangerForward)
-                wave.setEvadeDirection(Direction.BACKWARD);
-            else
-                wave.setEvadeDirection(Direction.FORWARD);
-
-
             if (wave.getEvadeDirection() == Direction.UNDEFINED) {
-                if (mRandom.nextFloat() > 0.5) {
-                    wave.setEvadeDirection(Direction.FORWARD);
-                } else {
+                if (dangerBackward < dangerForward) {
                     wave.setEvadeDirection(Direction.BACKWARD);
+                    if (log)
+                        System.out.println("Evade moving backwards");
+                } else {
+                    if (log)
+                        System.out.println("Evade moving forwards");
+                    wave.setEvadeDirection(Direction.FORWARD);
+                    mCombinedMovement.newWave();
                 }
-            }
 
 
-            if (wave.getEvadeDirection() == Direction.FORWARD) {
-                // turn 90� from bullet
-                mSurfDirection = angle - (Math.PI / 2);
+                if (wave.getEvadeDirection() == Direction.FORWARD) {
+                    // turn 90� from bullet
+                    mSurfAngle = wallSmoothing(mRobot.getPosition(), angle + (Math.PI / 2), wave.getEvadeDirection());
+                    System.out.println("wave dir:" + wave.getEvadeDirection());
+                } else {
+                    // turn 90� from bullet
+                    mSurfAngle = wallSmoothing(mRobot.getPosition(), angle - (Math.PI / 2), wave.getEvadeDirection());
+                    System.out.println("wave dir:" + wave.getEvadeDirection());
+                }
+                mSurfAngle = MyUtils.normaliseHeading(mSurfAngle);
+                mSurfDirection = wave.getEvadeDirection();
 
-                if (log)
-                    System.out.println("Evade moving forwards");
-
+//            turnAndMove(mSurfAngle);
             } else {
-                // turn 90� from bullet
-                mSurfDirection = angle + (Math.PI / 2);
-
-                if (log)
-                    System.out.println("Evade moving backwards");
-            }
-
-
-        } else {
 //no waves present return NaN
-            mSurfDirection = Double.NaN;
+                mSurfAngle = Double.NaN;
+            }
         }
 
+    }
 
+    public EnemyBulletWave getClosestSurfableWave() {
+        double closestDistance = 500000; // I use use some very big number here
+        EnemyBulletWave surfWave = null;
+
+        for (EnemyBulletWave ew : mRobot.getBulletWaves()) {
+            double distance = mRobot.getPosition().distance(ew.getFireLocation())
+                    - ew.getDistanceTraveled(mRobot.getTime());
+
+            if (distance > ew.getBulletVelocity() && distance < closestDistance) {
+                surfWave = ew;
+                closestDistance = distance;
+            }
+        }
+
+        return surfWave;
     }
 
     private void cleanWaves() {
 
-        //remove waves that already passed the game field
-        List<EnemyBulletWave> removeList = new ArrayList<>();
-        for (EnemyBulletWave bulletWave : mRobot.getBulletWaves()) {
-            if (bulletWave.getDistanceTraveled(mRobot.getTime()) > mRobot.getBattleFieldWidth()) {
-                removeList.add(bulletWave);
+        //remove waves that already passed the robot
+        for (int x = 0; x < mRobot.getBulletWaves().size(); x++) {
+            EnemyBulletWave ew = mRobot.getBulletWaves().get(x);
+            double distanceTraveled = ew.getDistanceTraveled(mRobot.getTime());
+
+            if (distanceTraveled >
+                    mRobot.getPosition().distance(ew.getFireLocation()) + 50) {
+                mRobot.getBulletWaves().remove(x);
+                x--;
             }
         }
-        mRobot.getBulletWaves().removeAll(removeList);
-    }
 
+    }
 
     public double checkDanger(EnemyBulletWave surfWave, Direction direction) {
         int index = getFactorIndex(surfWave,
@@ -124,6 +140,7 @@ public class SurferMovement {
     }
 
     public Point2D.Double predictPosition(EnemyBulletWave surfWave, Direction direction) {
+
         Point2D.Double predictedPosition = (Point2D.Double) (mRobot.getPosition().clone());
         double predictedVelocity = mRobot.getVelocity();
         double predictedHeading = mRobot.getHeadingRadians();
@@ -165,7 +182,6 @@ public class SurferMovement {
             counter++;
 
             if (predictedPosition.distance(surfWave.getFireLocation()) <
-                    // TODO check result of getDistanceTravelled
                     surfWave.getDistanceTraveled(mRobot.getTime()) + (counter * surfWave.getBulletVelocity())
                             + surfWave.getBulletVelocity()) {
                 intercepted = true;
@@ -174,7 +190,6 @@ public class SurferMovement {
 
         return predictedPosition;
     }
-
 
     /**
      * Adjusts the heading of the tank so he wont hit a wall.
@@ -191,7 +206,6 @@ public class SurferMovement {
         }
         return angle;
     }
-
 
     // CREDIT: from CassiusClay, by PEZ
     //   - returns point length away from sourceLocation, at angle
@@ -228,6 +242,16 @@ public class SurferMovement {
         return Math.asin(8.0 / velocity);
     }
 
+    public void turnAndMove(double absAngle) {
+
+        int pointDir = (Math.abs(absAngle - mRobot.getHeadingRadians()) < Math.PI / 2 ? 1 : -1);
+        mRobot.setAhead(1000 * pointDir);
+        mRobot.setTurnRightRadians(Utils.normalRelativeAngle(absAngle + (pointDir == -1 ? Math.PI : 0) - mRobot.getHeadingRadians()));
+        Direction newDirection = Direction.fromInt(pointDir);
+        mRobot.setDirection(newDirection);
+        System.out.println(newDirection.toString());
+
+    }
 
     // Given the EnemyWave that the bullet was on, and the point where we
     // were hit, update our stat array to reflect the danger in that area.
@@ -243,4 +267,37 @@ public class SurferMovement {
     }
 
 
+    public void draw(Graphics2D _g) {
+
+        if (log) {
+            //draw dead zone
+            _g.setColor(new Color(1, 0, 0, 0.5f));
+            _g.fillRect(0, 0, (int) mRobot.getBattleFieldWidth(), WALL_DEAD_ZONE);
+            _g.fillRect(0, (int) (mRobot.getBattleFieldHeight() - WALL_DEAD_ZONE), (int) mRobot.getBattleFieldWidth(), WALL_DEAD_ZONE);
+            _g.fillRect(0, 0, WALL_DEAD_ZONE, (int) mRobot.getBattleFieldHeight());
+            _g.fillRect((int) (mRobot.getBattleFieldWidth() - WALL_DEAD_ZONE), 0, WALL_DEAD_ZONE, (int) mRobot.getBattleFieldHeight());
+            _g.setColor(Color.GREEN);
+
+
+//        //draw direction stick
+
+            Point2D.Double stickEnd = MyUtils.project(mRobot.getPosition(), mRobot.getHeadingRadians(), WALL_STICK);
+            Point2D.Double stickStart = mRobot.getPosition();
+            _g.drawLine((int) stickStart.getX(), (int) stickStart.getY(), (int) stickEnd.getX(), (int) stickEnd.getY());
+
+
+            Point2D.Double stickEnd1 = mRobot.getPosition();
+            Point2D.Double stickStart1 = MyUtils.project(mRobot.getPosition(), mRobot.getHeadingRadians(), -WALL_STICK);
+            _g.drawLine((int) stickStart1.getX(), (int) stickStart1.getY(), (int) stickEnd1.getX(), (int) stickEnd1.getY());
+
+
+        }
+
+
+    }
+
+
+    public Direction getSurfDirection() {
+        return mSurfDirection;
+    }
 }

@@ -12,10 +12,18 @@ import fhooe.ai.gun.GFTGun;
 import fhooe.ai.gun.Gun;
 import fhooe.ai.movement.AntiGravityMovement;
 import fhooe.ai.movement.CombinedMovement;
+import fhooe.ai.movement.Direction;
 import fhooe.ai.movement.SurferMovement;
 import fhooe.ai.radar.OldestScannedRadar;
 import fhooe.ai.radar.Radar;
-import robocode.*;
+import robocode.AdvancedRobot;
+import robocode.CustomEvent;
+import robocode.HitByBulletEvent;
+import robocode.HitWallEvent;
+import robocode.RadarTurnCompleteCondition;
+import robocode.RobotDeathEvent;
+import robocode.Rules;
+import robocode.ScannedRobotEvent;
 import robocode.util.Utils;
 
 // API help : http://robocode.sourceforge.net/docs/robocode/robocode/Robot.html
@@ -77,11 +85,11 @@ public class TestRobot extends AdvancedRobot {
         mAntiGravityMovement = new AntiGravityMovement(this);
         mSurferMovement = new SurferMovement(this);
         mCombinedMovement = new CombinedMovement(this, mAntiGravityMovement, mSurferMovement);
-
+        mSurferMovement.setCombinedMovement(mCombinedMovement);
         //init radar
         mRadar = new OldestScannedRadar(this);
         mRadar.init();
-        System.out.println("Start2");
+
 
 
         // Robot main loop
@@ -139,24 +147,29 @@ public class TestRobot extends AdvancedRobot {
     /**
      * onScannedRobot: What to do when you see another robot
      */
-    public void onScannedRobot(ScannedRobotEvent e) {
-        mEnemiesCache.addEvent(e);
+    public void onScannedRobot(ScannedRobotEvent event) {
+        mEnemiesCache.addEvent(event);
         if (getGunHeat() < 1) {
-            mRadar.lock(e.getName());
+            mRadar.lock(event.getName());
             System.out.println("-- Lock Gun Heat: "+getGunHeat());
         } else {
             mRadar.unlock();
             System.out.println("-- Unlock Gun Heat: "+getGunHeat());
         }
-        mRadar.scannedRobot(e);
-        mGun.scannedRobot(e);
+        mRadar.scannedRobot(event);
+        mGun.scannedRobot(event);
         //simpleTarget(e);
     }
-    private void simpleTarget(ScannedRobotEvent e){
-        double absBearing = e.getBearingRadians() + getHeadingRadians();
-        setTurnRadarRightRadians(Utils.normalRelativeAngle(absBearing - getRadarHeadingRadians()) * 2);
+    private void simpleTarget(ScannedRobotEvent event){
+        double absBearing = event.getBearingRadians() + getHeadingRadians();
         setTurnGunRightRadians(Utils.normalRelativeAngle(absBearing - getGunHeadingRadians()));
-        setFire(2);
+        //Fire at target with power varying with distance.
+        if (event.getDistance() < 100 ) {
+            fire(2);
+        }
+        else  {
+//            fire(1);
+        }
     }
 
     @Override
@@ -189,16 +202,16 @@ public class TestRobot extends AdvancedRobot {
         g.drawOval((int) getBattleFieldWidth() / 2 - 50, (int) getBattleFieldHeight() / 2 - 50, 100, 100);
 
         //draw waves
-//        for (EnemyBulletWave bulletWave : mBulletWaves) {
-//            int d = (int) bulletWave.getDistanceTraveled(getTime()+1)*2;
-//            g.drawOval((int) bulletWave.getFireLocation().getX() - (d / 2), (int) bulletWave.getFireLocation().getY() - (d / 2), d, d);
-//
-//            double rotation = -bulletWave.getDirectAngle();
-//            g.rotate(rotation, bulletWave.getFireLocation().getX(), bulletWave.getFireLocation().getY());
-//
-//            g.drawLine((int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY(), (int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY()+100);
-//            g.rotate(-rotation, bulletWave.getFireLocation().getX(), bulletWave.getFireLocation().getY());
-//        }
+        for (EnemyBulletWave bulletWave : mBulletWaves) {
+            int d = (int) bulletWave.getDistanceTraveled(getTime() + 1) * 2;
+            g.drawOval((int) bulletWave.getFireLocation().getX() - (d / 2), (int) bulletWave.getFireLocation().getY() - (d / 2), d, d);
+
+            double rotation = -bulletWave.getDirectAngle();
+            g.rotate(rotation, bulletWave.getFireLocation().getX(), bulletWave.getFireLocation().getY());
+
+            g.drawLine((int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY(), (int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY() + 100);
+            g.rotate(-rotation, bulletWave.getFireLocation().getX(), bulletWave.getFireLocation().getY());
+        }
 
         // draw enemy positions
         for (Enemy enemy : mEnemiesCache.getEnemyMap().values()) {
@@ -206,7 +219,19 @@ public class TestRobot extends AdvancedRobot {
             g.drawOval((int) enemy.getPosition().getX() - (d / 2), (int) enemy.getPosition().getY() - (d / 2), d, d);
         }
 
+        mSurferMovement.draw(g);
         mCombinedMovement.draw(g);
+    }
+
+    public void setDirection(Direction _direction) {
+        mDirection = _direction;
+    }
+
+    private Direction mDirection = Direction.UNDEFINED;
+
+
+    public Direction getDirection() {
+        return mDirection;
     }
 }
 
