@@ -34,7 +34,7 @@ public class OldestScannedRadar implements Radar {
     @Override
     public void doScan() {
         if (!isLocked()) {
-            mRobot.setTurnRadarRight(mScanDir * Double.POSITIVE_INFINITY);
+            mRobot.setTurnRadarRightRadians(mScanDir * Double.POSITIVE_INFINITY);
             mRobot.scan();
         } else if (mRobot.getRadarTurnRemainingRadians() == 0) {
             // System.out.println("- Locked: RadarTurnRemaingRadians = "+mRobot.getRadarTurnRemainingRadians());

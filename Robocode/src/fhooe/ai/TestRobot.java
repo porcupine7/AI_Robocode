@@ -153,17 +153,16 @@ public class TestRobot extends AdvancedRobot {
      */
     public void onScannedRobot(ScannedRobotEvent event) {
         mEnemiesCache.addEvent(event);
-        mRadar.lock(mEnemiesCache.getNearestEnemy());
-        /*
+        //mRadar.lock(mEnemiesCache.getNearestEnemy());
         if (!mRadar.isLocked() && getTime() > mScanTime + 5) {
             System.out.println("Lock at " + getTime());
+            mRadar.lock(mEnemiesCache.getNearestEnemy());
         }
-        if (mRadar.isLocked() && getTime() > mRadar.getLockTime() + 10 && !mEnemiesCache.oneRemaining()) {
+        if (mRadar.isLocked() && getTime() > mRadar.getLockTime() + 100 && !mEnemiesCache.oneRemaining()) {
             System.out.println("Unlock at " + getTime());
             mRadar.unlock();
             mScanTime = getTime();
         }
-        */
         if (shouldLock()) {
             //mRadar.lock(event.getName());
         } else {
