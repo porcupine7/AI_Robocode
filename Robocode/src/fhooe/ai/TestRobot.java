@@ -64,7 +64,7 @@ public class TestRobot extends AdvancedRobot {
         setGunColor(Color.BLUE);
         setRadarColor(Color.magenta);
         setBulletColor(Color.CYAN);
-        setScanColor(new Color((float)Math.random(),(float)Math.random(),(float)Math.random()));
+        setScanColor(new Color((float) Math.random(), (float) Math.random(), (float) Math.random()));
 
         addCustomEvent(new RadarTurnCompleteCondition(this));
         addCustomEvent(new DetectBulletFiredCondition(this));
@@ -77,7 +77,7 @@ public class TestRobot extends AdvancedRobot {
         //initialize movement strategies
         mAntiGravityMovement = new AntiGravityMovement(this);
         mSurferMovement = new SurferMovement(this);
-        mCombinedMovement = new CombinedMovement(this, mAntiGravityMovement,mSurferMovement);
+        mCombinedMovement = new CombinedMovement(this, mAntiGravityMovement, mSurferMovement);
 
         //init radar
         mRadar = new OldestScannedRadar(this);
@@ -134,19 +134,25 @@ public class TestRobot extends AdvancedRobot {
      */
     public void onHitWall(HitWallEvent e) {
     }
-
+    
     /**
      * onScannedRobot: What to do when you see another robot
      */
     public void onScannedRobot(ScannedRobotEvent e) {
         mEnemiesCache.addEvent(e);
+        if (getGunHeat() < 0.5) {
+            mRadar.lock(e.getName());
+        } else {
+            mRadar.unlock();
+        }
         mRadar.scannedRobot(e);
         //mLAGun.onScannedRobot(e);
         //mGun.scannedRobot(e);
         simpleTarget(e);
     }
     private void simpleTarget(ScannedRobotEvent e){
-        double absBearing=e.getBearingRadians()+getHeadingRadians();
+        double absBearing = e.getBearingRadians() + getHeadingRadians();
+        setTurnRadarRightRadians(Utils.normalRelativeAngle(absBearing - getRadarHeadingRadians()) * 2);
         setTurnGunRightRadians(Utils.normalRelativeAngle(absBearing - getGunHeadingRadians()));
         setFire(2);
     }
@@ -178,7 +184,7 @@ public class TestRobot extends AdvancedRobot {
     public void onPaint(Graphics2D g) {
         super.onPaint(g);
         //draw center
-        g.drawOval((int)getBattleFieldWidth()/2-50,(int)getBattleFieldHeight()/2-50,100,100);
+        g.drawOval((int) getBattleFieldWidth() / 2 - 50, (int) getBattleFieldHeight() / 2 - 50, 100, 100);
 
         //draw waves
 //        for (EnemyBulletWave bulletWave : mBulletWaves) {
@@ -194,8 +200,8 @@ public class TestRobot extends AdvancedRobot {
 
         // draw enemy positions
         for (Enemy enemy : mEnemiesCache.getEnemyMap().values()) {
-            int d =40;
-            g.drawOval((int)enemy.getPosition().getX()-(d/2),(int)enemy.getPosition().getY()-(d/2),d,d);
+            int d = 40;
+            g.drawOval((int) enemy.getPosition().getX() - (d / 2), (int) enemy.getPosition().getY() - (d / 2), d, d);
         }
 
         mCombinedMovement.draw(g);
