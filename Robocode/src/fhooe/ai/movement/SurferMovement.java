@@ -15,49 +15,37 @@ import robocode.util.Utils;
  */
 public class SurferMovement {
 
-    public static final boolean log = true;
+    public static final boolean log = false;
     // This is a rectangle that represents an 800x600 battle field,
     // used for a simple, iterative WallSmoothing method (by Kawigi).
     // If you're not familiar with WallSmoothing, the wall stick indicates
     // the amount of space we try to always have on either end of the tank
     // (extending straight out the front or back) before touching a wall.
     public static Rectangle2D.Double mPlayField;
-    public static int WALL_STICK = 75;
-    public static int WALL_DEAD_ZONE = 70;
+    public static int WALL_STICK = 60;
+    public static int WALL_DEAD_ZONE = 60;
     public static int BINS = 47; // SEGMENTS
     public static double mSurfStats[] = new double[BINS];
     private TestRobot mRobot;
-    private int mStickHitWallCount;
-
-
-    public double getSurfAngle() {
-        return mSurfAngle;
-    }
 
     private double mSurfAngle = Double.NaN;
+    private Direction mSurfDirection;
 
+    public void setCombinedMovement(CombinedMovement _combinedMovement) {
+        mCombinedMovement = _combinedMovement;
+    }
+
+    private CombinedMovement mCombinedMovement;
 
     public SurferMovement(TestRobot _robot) {
         mRobot = _robot;
         mPlayField
                 = new Rectangle2D.Double(WALL_DEAD_ZONE, WALL_DEAD_ZONE, mRobot.getBattleFieldWidth() - (WALL_DEAD_ZONE * 2), mRobot.getBattleFieldHeight() - (WALL_DEAD_ZONE * 2));
+
     }
 
-    public EnemyBulletWave getClosestSurfableWave() {
-        double closestDistance = 500000; // I use use some very big number here
-        EnemyBulletWave surfWave = null;
-
-        for (EnemyBulletWave ew : mRobot.getBulletWaves()) {
-            double distance = mRobot.getPosition().distance(ew.getFireLocation())
-                    - ew.getDistanceTraveled(mRobot.getTime());
-
-            if (distance > ew.getBulletVelocity() && distance < closestDistance) {
-                surfWave = ew;
-                closestDistance = distance;
-            }
-        }
-
-        return surfWave;
+    public double getSurfAngle() {
+        return mSurfAngle;
     }
 
     public void doSurfing() {
@@ -78,73 +66,62 @@ public class SurferMovement {
             double angle = MyUtils.absoluteBearing(wave.getFireLocation(), mRobot.getPosition());
 
             if (wave.getEvadeDirection() == Direction.UNDEFINED) {
-                if (dangerBackward < dangerForward){
+                if (dangerBackward < dangerForward) {
                     wave.setEvadeDirection(Direction.BACKWARD);
                     if (log)
                         System.out.println("Evade moving backwards");
-                }
-
-                else{
+                } else {
                     if (log)
                         System.out.println("Evade moving forwards");
                     wave.setEvadeDirection(Direction.FORWARD);
-
+                    mCombinedMovement.newWave();
                 }
-            }
 
 
-            if (!mPlayField.contains(MyUtils.project(mRobot.getPosition(), angle, WALL_STICK))) {
-                mStickHitWallCount++;
-            }
-
-            if(mStickHitWallCount > 5){
-                mStickHitWallCount = 0;
                 if (wave.getEvadeDirection() == Direction.FORWARD) {
-
-                   wave.setEvadeDirection(Direction.BACKWARD);
+                    // turn 90� from bullet
+                    mSurfAngle = wallSmoothing(mRobot.getPosition(), angle + (Math.PI / 2), wave.getEvadeDirection());
+                    System.out.println("wave dir:" + wave.getEvadeDirection());
                 } else {
                     // turn 90� from bullet
-                    wave.setEvadeDirection(Direction.FORWARD);
+                    mSurfAngle = wallSmoothing(mRobot.getPosition(), angle - (Math.PI / 2), wave.getEvadeDirection());
+                    System.out.println("wave dir:" + wave.getEvadeDirection());
                 }
-            }
-System.out.println("stick hit wall: "+mStickHitWallCount);
+                mSurfAngle = MyUtils.normaliseHeading(mSurfAngle);
+                mSurfDirection = wave.getEvadeDirection();
 
-
-            if (wave.getEvadeDirection() == Direction.FORWARD) {
-                // turn 90� from bullet
-                mSurfAngle =  wallSmoothing(mRobot.getPosition(), angle - (Math.PI / 2), mRobot.getDirection());
+//            turnAndMove(mSurfAngle);
             } else {
-                // turn 90� from bullet
-                mSurfAngle =  wallSmoothing(mRobot.getPosition(), angle + (Math.PI/2), mRobot.getDirection());
-            }
-            mSurfAngle = MyUtils.normaliseHeading(mSurfAngle);
-
-        } else {
 //no waves present return NaN
-            mSurfAngle = Double.NaN;
+                mSurfAngle = Double.NaN;
+            }
         }
 
-
-
     }
 
+    public EnemyBulletWave getClosestSurfableWave() {
+        double closestDistance = 500000; // I use use some very big number here
+        EnemyBulletWave surfWave = null;
 
-    public void turnAndMove(double absAngle) {
+        for (EnemyBulletWave ew : mRobot.getBulletWaves()) {
+            double distance = mRobot.getPosition().distance(ew.getFireLocation())
+                    - ew.getDistanceTraveled(mRobot.getTime());
 
-        int pointDir = (Math.abs(absAngle - mRobot.getHeadingRadians()) < Math.PI / 2 ? 1 : -1);
-//        mRobot.setAhead(100 * pointDir);
-        mRobot.setTurnRightRadians(Utils.normalRelativeAngle(absAngle + (pointDir == -1 ? Math.PI : 0) - mRobot.getHeadingRadians()));
+            if (distance > ew.getBulletVelocity() && distance < closestDistance) {
+                surfWave = ew;
+                closestDistance = distance;
+            }
+        }
 
-
+        return surfWave;
     }
-
 
     private void cleanWaves() {
 
         //remove waves that already passed the robot
-        for (int x = 0; x <mRobot.getBulletWaves().size(); x++) {
+        for (int x = 0; x < mRobot.getBulletWaves().size(); x++) {
             EnemyBulletWave ew = mRobot.getBulletWaves().get(x);
-           double distanceTraveled = ew.getDistanceTraveled(mRobot.getTime());
+            double distanceTraveled = ew.getDistanceTraveled(mRobot.getTime());
 
             if (distanceTraveled >
                     mRobot.getPosition().distance(ew.getFireLocation()) + 50) {
@@ -154,7 +131,6 @@ System.out.println("stick hit wall: "+mStickHitWallCount);
         }
 
     }
-
 
     public double checkDanger(EnemyBulletWave surfWave, Direction direction) {
         int index = getFactorIndex(surfWave,
@@ -215,7 +191,6 @@ System.out.println("stick hit wall: "+mStickHitWallCount);
         return predictedPosition;
     }
 
-
     /**
      * Adjusts the heading of the tank so he wont hit a wall.
      * CREDIT: Iterative WallSmoothing by Kawigi
@@ -231,7 +206,6 @@ System.out.println("stick hit wall: "+mStickHitWallCount);
         }
         return angle;
     }
-
 
     // CREDIT: from CassiusClay, by PEZ
     //   - returns point length away from sourceLocation, at angle
@@ -268,6 +242,16 @@ System.out.println("stick hit wall: "+mStickHitWallCount);
         return Math.asin(8.0 / velocity);
     }
 
+    public void turnAndMove(double absAngle) {
+
+        int pointDir = (Math.abs(absAngle - mRobot.getHeadingRadians()) < Math.PI / 2 ? 1 : -1);
+        mRobot.setAhead(1000 * pointDir);
+        mRobot.setTurnRightRadians(Utils.normalRelativeAngle(absAngle + (pointDir == -1 ? Math.PI : 0) - mRobot.getHeadingRadians()));
+        Direction newDirection = Direction.fromInt(pointDir);
+        mRobot.setDirection(newDirection);
+        System.out.println(newDirection.toString());
+
+    }
 
     // Given the EnemyWave that the bullet was on, and the point where we
     // were hit, update our stat array to reflect the danger in that area.
@@ -281,7 +265,6 @@ System.out.println("stick hit wall: "+mStickHitWallCount);
             mSurfStats[x] += 1.0 / (Math.pow(index - x, 2) + 1);
         }
     }
-
 
 
     public void draw(Graphics2D _g) {
@@ -311,9 +294,10 @@ System.out.println("stick hit wall: "+mStickHitWallCount);
         }
 
 
-
-
     }
 
 
+    public Direction getSurfDirection() {
+        return mSurfDirection;
+    }
 }

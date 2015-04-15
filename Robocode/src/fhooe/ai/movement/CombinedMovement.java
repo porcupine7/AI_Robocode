@@ -8,6 +8,7 @@ import java.util.Random;
 import fhooe.ai.GravityPoint;
 import fhooe.ai.TestRobot;
 import fhooe.ai.util.MyUtils;
+import robocode.AdvancedRobot;
 import robocode.util.Utils;
 
 /**
@@ -34,6 +35,8 @@ public class CombinedMovement {
     private double mActualAngle = 0;
     private double mSurferAngle = 0;
     private double mGravityAngle = Double.NaN;
+    private double mDrawAngle;
+    private long mLastDirChange;
 
     public CombinedMovement(TestRobot _robot, AntiGravityMovement _gravityMovement, SurferMovement _surferMovement) {
         mRobot = _robot;
@@ -82,7 +85,8 @@ public class CombinedMovement {
         //gravity movement
         GravityPoint gravityPoint = mGravityMovement.getGravityCenter();
         mGravityAngle = MyUtils.absoluteBearing(mRobot.getPosition(), gravityPoint.getPosition());
-        double gravityForce = gravityPoint.getPower() / 60f;
+        double gravityForce = gravityPoint.getPower() / 40f;
+System.out.println("gF "+gravityForce);
 
         //surferMovement
         mSurferAngle = mSurferMovement.getSurfAngle();
@@ -101,28 +105,32 @@ public class CombinedMovement {
             //no waves, ignore wave surfing
             mActualAngle = mGravityAngle - mOffsetAngle;
             if (log)
-                System.out.println("gravity only");
+                System.out.println("gravity only no wave");
         }else
-        if (gravityForce < 0.2 ) {
+        if (gravityForce < 0.4 ) {
             //gravity very weak, use only wave surfing
-            mActualAngle = mSurferAngle;
+            mActualAngle = mSurferAngle - mOffsetAngle;
             if (log)
                 System.out.println("surfing only");
+            setBackAsFront(mRobot,mActualAngle);
         }else
-        if (gravityForce > 1) {
+        if (gravityForce > 1.5) {
             //gravity very strong, ignore wave surfing
             mActualAngle = mGravityAngle - mOffsetAngle;
             if (log)
                 System.out.println("gravity only");
+            turnAndMove(mActualAngle);
 
         } else {
             mActualAngle = (mSurferAngle * (1 - gravityForce)) + (mGravityAngle * gravityForce) - mOffsetAngle;
             if (log)
                 System.out.println("combined");
+            turnAndMove(mActualAngle);
         }
+        mActualAngle = MyUtils.normaliseHeading(mActualAngle);
 
-        System.out.println(mDirection.toString());
-        turnAndMove(mActualAngle);
+
+
 
 
         if (log) {
@@ -130,21 +138,29 @@ public class CombinedMovement {
 
         }
 
-
     }
 
 
     public void turnAndMove(double absAngle) {
 
         int pointDir = (Math.abs(absAngle - mRobot.getHeadingRadians()) < Math.PI / 2 ? 1 : -1);
-        mRobot.setAhead(1000 * pointDir);
-        mRobot.setTurnRightRadians(Utils.normalRelativeAngle(absAngle + (pointDir == -1 ? Math.PI : 0) - mRobot.getHeadingRadians()));
         Direction newDirection = Direction.fromInt(pointDir);
+
+        if(newDirection != mDirection && (mRobot.getTime() - mLastDirChange < 17)) {
+            pointDir *= -1;
+        }
+        newDirection = Direction.fromInt(pointDir);
+
+        mRobot.setAhead(1000 * pointDir);
+        mDrawAngle = absAngle + (pointDir == -1 ? Math.PI : 0);
+        mRobot.setTurnRightRadians(Utils.normalRelativeAngle(absAngle + (pointDir == -1 ? Math.PI : 0) - mRobot.getHeadingRadians()));
+
 
         if (newDirection != mDirection) {
             mDirection = newDirection;
             mRobot.setDirection(mDirection);
             mDirectionChange++;
+            mLastDirChange = mRobot.getTime();
         }
 
     }
@@ -172,7 +188,7 @@ public class CombinedMovement {
 
             // draw actual direction
             _g.setColor(Color.yellow);
-            Point2D pointAct = MyUtils.project(mRobot.getPosition(), mActualAngle, 100);
+            Point2D pointAct = MyUtils.project(mRobot.getPosition(), mDrawAngle, 100);
             _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) pointAct.getX(), (int) pointAct.getY());
             _g.fillOval((int) pointAct.getX() - (d / 2), (int) pointAct.getY() - (d / 2), d, d);
 
@@ -214,5 +230,26 @@ public class CombinedMovement {
 
     }
 
-
+    private   void setBackAsFront(AdvancedRobot robot, double goAngle) {
+        double angle =
+                Utils.normalRelativeAngle(goAngle - robot.getHeadingRadians());
+        if (Math.abs(angle) > (Math.PI/2)) {
+            if (angle < 0) {
+                robot.setTurnRightRadians(Math.PI + angle);
+            } else {
+                robot.setTurnLeftRadians(Math.PI - angle);
+            }
+            robot.setBack(100);
+        } else {
+            if (angle < 0) {
+                robot.setTurnLeftRadians(-1*angle);
+            } else {
+                robot.setTurnRightRadians(angle);
+            }
+            robot.setAhead(100);
+        }
+    }
+    public void newWave() {
+        mLastDirChange = 0;
+    }
 }

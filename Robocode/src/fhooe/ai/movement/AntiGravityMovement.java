@@ -70,10 +70,10 @@ public class AntiGravityMovement {
         /**The following four lines add wall avoidance.  They will only
          affect us if the bot is close to the walls due to the
          force from the walls decreasing at a power 3.**/
-        xforce += 600000 / Math.pow(MyUtils.getDistance(mRobot.getX(), mRobot.getY(), mRobot.getBattleFieldWidth(), mRobot.getY()),1.9);
-        xforce -= 600000/ Math.pow(MyUtils.getDistance(mRobot.getX(), mRobot.getY(), 0, mRobot.getY()), 1.9);
-        yforce += 600000 / Math.pow(MyUtils.getDistance(mRobot.getX(), mRobot.getY(), mRobot.getX(), mRobot.getBattleFieldHeight()), 1.9);
-        yforce -= 600000 / Math.pow(MyUtils.getDistance(mRobot.getX(),mRobot.getY(), mRobot.getX(), 0), 1.9);
+        xforce += 600000 / Math.pow(MyUtils.getDistance(mRobot.getX(), mRobot.getY(), mRobot.getBattleFieldWidth(), mRobot.getY()),2.2);
+        xforce -= 600000/ Math.pow(MyUtils.getDistance(mRobot.getX(), mRobot.getY(), 0, mRobot.getY()),2.2);
+        yforce += 600000 / Math.pow(MyUtils.getDistance(mRobot.getX(), mRobot.getY(), mRobot.getX(), mRobot.getBattleFieldHeight()), 2.2);
+        yforce -= 600000 / Math.pow(MyUtils.getDistance(mRobot.getX(),mRobot.getY(), mRobot.getX(), 0), 2.2);
 
 
        for (GravityPoint gravityPoint : mCorners) {

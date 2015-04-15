@@ -83,11 +83,11 @@ public class TestRobot extends AdvancedRobot {
         mAntiGravityMovement = new AntiGravityMovement(this);
         mSurferMovement = new SurferMovement(this);
         mCombinedMovement = new CombinedMovement(this, mAntiGravityMovement, mSurferMovement);
-
+        mSurferMovement.setCombinedMovement(mCombinedMovement);
         //init radar
         mRadar = new OldestScannedRadar(this);
         mRadar.init();
-        System.out.println("Start2");
+
 
 
         // Robot main loop
@@ -143,19 +143,24 @@ public class TestRobot extends AdvancedRobot {
     /**
      * onScannedRobot: What to do when you see another robot
      */
-    public void onScannedRobot(ScannedRobotEvent e) {
-        mEnemiesCache.addEvent(e);
+    public void onScannedRobot(ScannedRobotEvent event) {
+        mEnemiesCache.addEvent(event);
         if (getGunHeat() < 0.5) {
-            mRadar.lock(e.getName());
+            mRadar.lock(event.getName());
         } else {
             mRadar.unlock();
         }
-        mRadar.scannedRobot(e);
+        mRadar.scannedRobot(event);
 
-        double absBearing = e.getBearingRadians() + getHeadingRadians();
-        setTurnRadarRightRadians(Utils.normalRelativeAngle(absBearing - getRadarHeadingRadians()) * 2);
+        double absBearing = event.getBearingRadians() + getHeadingRadians();
         setTurnGunRightRadians(Utils.normalRelativeAngle(absBearing - getGunHeadingRadians()));
-//        setFire(2);
+        //Fire at target with power varying with distance.
+        if (event.getDistance() < 100 ) {
+            fire(2);
+        }
+        else  {
+//            fire(1);
+        }
     }
 
     @Override
@@ -213,7 +218,7 @@ public class TestRobot extends AdvancedRobot {
         mDirection = _direction;
     }
 
-    private Direction mDirection;
+    private Direction mDirection = Direction.UNDEFINED;
 
 
     public Direction getDirection() {
