@@ -11,6 +11,12 @@ public interface Radar {
 
     void doScan();
 
+    void lock(String robotName);
+
+    void unlock();
+
+    boolean isLocked();
+
     void onRobotDeath(String robotName);
 
     void scannedRobot(ScannedRobotEvent _event);
