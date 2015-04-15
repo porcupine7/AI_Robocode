@@ -76,7 +76,7 @@ public class SurferMovement {
                     wave.setEvadeDirection(Direction.FORWARD);
                     mCombinedMovement.newWave();
                 }
-
+            }
 
                 if (wave.getEvadeDirection() == Direction.FORWARD) {
                     // turn 90� from bullet
@@ -95,7 +95,7 @@ public class SurferMovement {
 //no waves present return NaN
                 mSurfAngle = Double.NaN;
             }
-        }
+
 
     }
 

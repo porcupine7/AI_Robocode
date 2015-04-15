@@ -98,12 +98,13 @@ System.out.println("gF "+gravityForce);
             mOffsetAngle = 0;
         }
         mGravityAngle = MyUtils.normaliseHeading(mGravityAngle);
-
+System.out.println("");
         //accumulate movement
 
         if (Double.isNaN(mSurferAngle)) {
             //no waves, ignore wave surfing
             mActualAngle = mGravityAngle - mOffsetAngle;
+            turnAndMove( MyUtils.normaliseHeading(mActualAngle));
             if (log)
                 System.out.println("gravity only no wave");
         }else
@@ -112,22 +113,22 @@ System.out.println("gF "+gravityForce);
             mActualAngle = mSurferAngle - mOffsetAngle;
             if (log)
                 System.out.println("surfing only");
-            setBackAsFront(mRobot,mActualAngle);
+            setBackAsFront(mRobot, MyUtils.normaliseHeading(mActualAngle));
         }else
         if (gravityForce > 1.5) {
             //gravity very strong, ignore wave surfing
             mActualAngle = mGravityAngle - mOffsetAngle;
             if (log)
                 System.out.println("gravity only");
-            turnAndMove(mActualAngle);
+            turnAndMove( MyUtils.normaliseHeading(mActualAngle));
 
         } else {
             mActualAngle = (mSurferAngle * (1 - gravityForce)) + (mGravityAngle * gravityForce) - mOffsetAngle;
             if (log)
                 System.out.println("combined");
-            turnAndMove(mActualAngle);
+            turnAndMove( MyUtils.normaliseHeading(mActualAngle));
         }
-        mActualAngle = MyUtils.normaliseHeading(mActualAngle);
+        mActualAngle =  MyUtils.normaliseHeading(mActualAngle);
 
 
 
