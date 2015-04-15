@@ -82,7 +82,7 @@ public class CombinedMovement {
         //gravity movement
         GravityPoint gravityPoint = mGravityMovement.getGravityCenter();
         mGravityAngle = MyUtils.absoluteBearing(mRobot.getPosition(), gravityPoint.getPosition());
-        double gravityForce = gravityPoint.getPower() / 70f;
+        double gravityForce = gravityPoint.getPower() / 60f;
 
         //surferMovement
         mSurferAngle = mSurferMovement.getSurfAngle();
@@ -121,11 +121,12 @@ public class CombinedMovement {
                 System.out.println("combined");
         }
 
+        System.out.println(mDirection.toString());
         turnAndMove(mActualAngle);
 
 
         if (log) {
-            System.out.println("gravity influence: " + gravityForce);
+//            System.out.println("gravity influence: " + gravityForce);
 
         }
 
@@ -136,12 +137,13 @@ public class CombinedMovement {
     public void turnAndMove(double absAngle) {
 
         int pointDir = (Math.abs(absAngle - mRobot.getHeadingRadians()) < Math.PI / 2 ? 1 : -1);
-        mRobot.setAhead(100 * pointDir);
+        mRobot.setAhead(1000 * pointDir);
         mRobot.setTurnRightRadians(Utils.normalRelativeAngle(absAngle + (pointDir == -1 ? Math.PI : 0) - mRobot.getHeadingRadians()));
         Direction newDirection = Direction.fromInt(pointDir);
 
         if (newDirection != mDirection) {
             mDirection = newDirection;
+            mRobot.setDirection(mDirection);
             mDirectionChange++;
         }
 
@@ -192,7 +194,7 @@ public class CombinedMovement {
                     _g.fillOval((int) pointSurf.getX() - (d / 2), (int) pointSurf.getY() - (d / 2), d, d);
                 } else {
                     _g.setColor(Color.CYAN);
-                    Point2D pointSurf = MyUtils.project(mRobot.getPosition(), mSurferAngle + Math.PI, (1 - mGravityMovement.getGravityCenter().getPower()) * 10);
+                    Point2D pointSurf = MyUtils.project(mRobot.getPosition(), mSurferAngle , (1 - mGravityMovement.getGravityCenter().getPower()) * 10);
                     _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) pointSurf.getX(), (int) pointSurf.getY());
                     _g.fillOval((int) pointSurf.getX() - (d / 2), (int) pointSurf.getY() - (d / 2), d, d);
                 }

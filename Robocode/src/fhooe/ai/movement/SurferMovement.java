@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.Random;
 
 import fhooe.ai.EnemyBulletWave;
 import fhooe.ai.TestRobot;
@@ -23,12 +22,12 @@ public class SurferMovement {
     // the amount of space we try to always have on either end of the tank
     // (extending straight out the front or back) before touching a wall.
     public static Rectangle2D.Double mPlayField;
-    public static int WALL_STICK = 70;
-    public static int WALL_DEAD_ZONE = 50;
+    public static int WALL_STICK = 75;
+    public static int WALL_DEAD_ZONE = 70;
     public static int BINS = 47; // SEGMENTS
     public static double mSurfStats[] = new double[BINS];
     private TestRobot mRobot;
-    private Random mRandom = new Random();
+    private int mStickHitWallCount;
 
 
     public double getSurfAngle() {
@@ -94,14 +93,31 @@ public class SurferMovement {
             }
 
 
+            if (!mPlayField.contains(MyUtils.project(mRobot.getPosition(), angle, WALL_STICK))) {
+                mStickHitWallCount++;
+            }
+
+            if(mStickHitWallCount > 5){
+                mStickHitWallCount = 0;
+                if (wave.getEvadeDirection() == Direction.FORWARD) {
+
+                   wave.setEvadeDirection(Direction.BACKWARD);
+                } else {
+                    // turn 90� from bullet
+                    wave.setEvadeDirection(Direction.FORWARD);
+                }
+            }
+System.out.println("stick hit wall: "+mStickHitWallCount);
+
 
             if (wave.getEvadeDirection() == Direction.FORWARD) {
                 // turn 90� from bullet
-                mSurfAngle =  wallSmoothing(mRobot.getPosition(), angle - (Math.PI/2), Direction.FORWARD);
+                mSurfAngle =  wallSmoothing(mRobot.getPosition(), angle - (Math.PI / 2), mRobot.getDirection());
             } else {
                 // turn 90� from bullet
-                mSurfAngle =  wallSmoothing(mRobot.getPosition(), angle + (Math.PI/2), Direction.BACKWARD);
+                mSurfAngle =  wallSmoothing(mRobot.getPosition(), angle + (Math.PI/2), mRobot.getDirection());
             }
+            mSurfAngle = MyUtils.normaliseHeading(mSurfAngle);
 
         } else {
 //no waves present return NaN

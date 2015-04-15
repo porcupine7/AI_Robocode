@@ -10,10 +10,18 @@ import fhooe.ai.data.EnemiesCache;
 import fhooe.ai.data.Enemy;
 import fhooe.ai.movement.AntiGravityMovement;
 import fhooe.ai.movement.CombinedMovement;
+import fhooe.ai.movement.Direction;
 import fhooe.ai.movement.SurferMovement;
 import fhooe.ai.radar.OldestScannedRadar;
 import fhooe.ai.radar.Radar;
-import robocode.*;
+import robocode.AdvancedRobot;
+import robocode.CustomEvent;
+import robocode.HitByBulletEvent;
+import robocode.HitWallEvent;
+import robocode.RadarTurnCompleteCondition;
+import robocode.RobotDeathEvent;
+import robocode.Rules;
+import robocode.ScannedRobotEvent;
 import robocode.util.Utils;
 
 // API help : http://robocode.sourceforge.net/docs/robocode/robocode/Robot.html
@@ -181,13 +189,13 @@ public class TestRobot extends AdvancedRobot {
 
         //draw waves
         for (EnemyBulletWave bulletWave : mBulletWaves) {
-            int d = (int) bulletWave.getDistanceTraveled(getTime()+1)*2;
+            int d = (int) bulletWave.getDistanceTraveled(getTime() + 1) * 2;
             g.drawOval((int) bulletWave.getFireLocation().getX() - (d / 2), (int) bulletWave.getFireLocation().getY() - (d / 2), d, d);
 
             double rotation = -bulletWave.getDirectAngle();
             g.rotate(rotation, bulletWave.getFireLocation().getX(), bulletWave.getFireLocation().getY());
 
-            g.drawLine((int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY(), (int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY()+100);
+            g.drawLine((int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY(), (int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY() + 100);
             g.rotate(-rotation, bulletWave.getFireLocation().getX(), bulletWave.getFireLocation().getY());
         }
 
@@ -197,8 +205,19 @@ public class TestRobot extends AdvancedRobot {
             g.drawOval((int) enemy.getPosition().getX() - (d / 2), (int) enemy.getPosition().getY() - (d / 2), d, d);
         }
 
-       mSurferMovement.draw(g);
+        mSurferMovement.draw(g);
         mCombinedMovement.draw(g);
+    }
+
+    public void setDirection(Direction _direction) {
+        mDirection = _direction;
+    }
+
+    private Direction mDirection;
+
+
+    public Direction getDirection() {
+        return mDirection;
     }
 }
 
