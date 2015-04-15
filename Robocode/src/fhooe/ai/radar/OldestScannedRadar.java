@@ -50,7 +50,7 @@ public class OldestScannedRadar implements Radar {
     }
 
     public void lock(String enemyName) {
-        System.out.println("Locked at " + enemyName);
+//        System.out.println("Locked at " + enemyName);
         mLockedEnemy = enemyName;
     }
 
@@ -64,7 +64,7 @@ public class OldestScannedRadar implements Radar {
         if (isLocked()) {
             boolean isLockedEnemy = _event.getName().equals(mLockedEnemy);
             if (isLockedEnemy) {
-                System.out.println("Shootin at " + mLockedEnemy);
+//                System.out.println("Shootin at " + mLockedEnemy);
                 //factor of 2 because Radar arc sweeps through a fixed angle.
                 // Exact angle chosen depends on positions of enemy and radar when enemy is first picked up.
                 // Angle will be increased if necessary to maintain a lock.

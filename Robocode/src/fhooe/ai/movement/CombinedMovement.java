@@ -33,7 +33,7 @@ public class CombinedMovement {
     private double mOffsetAngle = 0;
     private double mActualAngle = 0;
     private double mSurferAngle = 0;
-    private double mGravityAngle = 0;
+    private double mGravityAngle = Double.NaN;
 
     public CombinedMovement(TestRobot _robot, AntiGravityMovement _gravityMovement, SurferMovement _surferMovement) {
         mRobot = _robot;
@@ -82,7 +82,7 @@ public class CombinedMovement {
         //gravity movement
         GravityPoint gravityPoint = mGravityMovement.getGravityCenter();
         mGravityAngle = MyUtils.absoluteBearing(mRobot.getPosition(), gravityPoint.getPosition());
-        double gravityForce = gravityPoint.getPower() / 50f;
+        double gravityForce = gravityPoint.getPower() / 70f;
 
         //surferMovement
         mSurferAngle = mSurferMovement.getSurfAngle();
@@ -96,13 +96,21 @@ public class CombinedMovement {
         mGravityAngle = MyUtils.normaliseHeading(mGravityAngle);
 
         //accumulate movement
-        if (gravityForce < 0.5) {
+
+        if (Double.isNaN(mSurferAngle)) {
+            //no waves, ignore wave surfing
+            mActualAngle = mGravityAngle - mOffsetAngle;
+            if (log)
+                System.out.println("gravity only");
+        }else
+        if (gravityForce < 0.2 ) {
+            //gravity very weak, use only wave surfing
             mActualAngle = mSurferAngle;
             if (log)
                 System.out.println("surfing only");
         }else
         if (gravityForce > 1) {
-            //gravity force very big, ignore wave surfing
+            //gravity very strong, ignore wave surfing
             mActualAngle = mGravityAngle - mOffsetAngle;
             if (log)
                 System.out.println("gravity only");
@@ -146,31 +154,18 @@ public class CombinedMovement {
 
 
 //        //draw direction stick
-            if (mDirection == Direction.FORWARD) {
-
-                Point2D.Double stickEnd = MyUtils.project(mRobot.getPosition(), mRobot.getHeadingRadians(), 50);
-                Point2D.Double stickStart = mRobot.getPosition();
-                _g.drawLine((int) stickStart.getX(), (int) stickStart.getY(), (int) stickEnd.getX(), (int) stickEnd.getY());
-
-            } else if (mDirection == Direction.BACKWARD) {
-                Point2D.Double stickEnd = mRobot.getPosition();
-                Point2D.Double stickStart = MyUtils.project(mRobot.getPosition(), mRobot.getHeadingRadians(), -50);
-                _g.drawLine((int) stickStart.getX(), (int) stickStart.getY(), (int) stickEnd.getX(), (int) stickEnd.getY());
-            }
-
-
-            //draw gravity pull
-            _g.setColor(Color.red);
+//            if (mDirection == Direction.FORWARD) {
+//
+//                Point2D.Double stickEnd = MyUtils.project(mRobot.getPosition(), mRobot.getHeadingRadians(), 50);
+//                Point2D.Double stickStart = mRobot.getPosition();
+//                _g.drawLine((int) stickStart.getX(), (int) stickStart.getY(), (int) stickEnd.getX(), (int) stickEnd.getY());
+//
+//            } else if (mDirection == Direction.BACKWARD) {
+//                Point2D.Double stickEnd = mRobot.getPosition();
+//                Point2D.Double stickStart = MyUtils.project(mRobot.getPosition(), mRobot.getHeadingRadians(), -50);
+//                _g.drawLine((int) stickStart.getX(), (int) stickStart.getY(), (int) stickEnd.getX(), (int) stickEnd.getY());
+//            }
             int d = 10;
-            _g.fillOval((int) mGravityMovement.getGravityCenter().getPosition().getX() - (d / 2), (int) mGravityMovement.getGravityCenter().getPosition().getY() - (d / 2), d, d);
-            _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) mGravityMovement.getGravityCenter().getPosition().getX(), (int) mGravityMovement.getGravityCenter().getPosition().getY());
-
-
-            // draw surf pull
-            _g.setColor(Color.blue);
-            Point2D pointSurf = MyUtils.project(mRobot.getPosition(), mSurferAngle, (1 - mGravityMovement.getGravityCenter().getPower()) * 10);
-            _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) pointSurf.getX(), (int) pointSurf.getY());
-            _g.fillOval((int) pointSurf.getX() - (d / 2), (int) pointSurf.getY() - (d / 2), d, d);
 
 
             // draw actual direction
@@ -178,6 +173,33 @@ public class CombinedMovement {
             Point2D pointAct = MyUtils.project(mRobot.getPosition(), mActualAngle, 100);
             _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) pointAct.getX(), (int) pointAct.getY());
             _g.fillOval((int) pointAct.getX() - (d / 2), (int) pointAct.getY() - (d / 2), d, d);
+
+
+            //draw gravity pull
+            _g.setColor(Color.red);
+
+            _g.fillOval((int) mGravityMovement.getGravityCenter().getPosition().getX() - (d / 2), (int) mGravityMovement.getGravityCenter().getPosition().getY() - (d / 2), d, d);
+            _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) mGravityMovement.getGravityCenter().getPosition().getX(), (int) mGravityMovement.getGravityCenter().getPosition().getY());
+
+
+            if(!Double.isNaN(mSurferAngle)) {
+                // draw surf pull
+
+                if (mDirection == Direction.FORWARD) {
+                    _g.setColor(Color.blue);
+                    Point2D pointSurf = MyUtils.project(mRobot.getPosition(), mSurferAngle, (1 - mGravityMovement.getGravityCenter().getPower()) * 10);
+                    _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) pointSurf.getX(), (int) pointSurf.getY());
+                    _g.fillOval((int) pointSurf.getX() - (d / 2), (int) pointSurf.getY() - (d / 2), d, d);
+                } else {
+                    _g.setColor(Color.CYAN);
+                    Point2D pointSurf = MyUtils.project(mRobot.getPosition(), mSurferAngle + Math.PI, (1 - mGravityMovement.getGravityCenter().getPower()) * 10);
+                    _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) pointSurf.getX(), (int) pointSurf.getY());
+                    _g.fillOval((int) pointSurf.getX() - (d / 2), (int) pointSurf.getY() - (d / 2), d, d);
+                }
+
+            }
+
+
 
             //draw problem mode indicator
             if (mProblemMode) {

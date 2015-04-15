@@ -16,7 +16,7 @@ import robocode.util.Utils;
  */
 public class SurferMovement {
 
-    public static final boolean log = false;
+    public static final boolean log = true;
     // This is a rectangle that represents an 800x600 battle field,
     // used for a simple, iterative WallSmoothing method (by Kawigi).
     // If you're not familiar with WallSmoothing, the wall stick indicates
@@ -35,7 +35,7 @@ public class SurferMovement {
         return mSurfAngle;
     }
 
-    private double mSurfAngle = 0;
+    private double mSurfAngle = Double.NaN;
 
 
     public SurferMovement(TestRobot _robot) {
@@ -65,12 +65,9 @@ public class SurferMovement {
 
 
         cleanWaves();
-        if (mRobot.getBulletWaves().size() > 0) {
+        EnemyBulletWave wave = getClosestSurfableWave();
+        if (wave != null) {
 
-            EnemyBulletWave wave = getClosestSurfableWave();
-
-            if(wave == null)
-                return;
             double dangerBackward = checkDanger(wave, Direction.BACKWARD);
             double dangerForward = checkDanger(wave, Direction.FORWARD);
 
