@@ -54,7 +54,7 @@ public class GFTGun implements Gun {
         if (mRobot.getEnergy() >= BULLET_POWER) {
             mRobot.addCustomEvent(wave);
         }
-        mRobot.setTurnRadarRightRadians(Utils.normalRelativeAngle(enemyAbsoluteBearing - mRobot.getRadarHeadingRadians()) * 2);
+        //mRobot.setTurnRadarRightRadians(Utils.normalRelativeAngle(enemyAbsoluteBearing - mRobot.getRadarHeadingRadians()) * 2);
 
     }
 

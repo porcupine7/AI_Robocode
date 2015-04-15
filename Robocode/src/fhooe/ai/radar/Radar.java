@@ -13,6 +13,8 @@ public interface Radar {
 
     void lock(String robotName);
 
+    long getLockTime();
+
     void unlock();
 
     boolean isLocked();

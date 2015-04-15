@@ -17,6 +17,7 @@ public class OldestScannedRadar implements Radar {
     private String mSoughtEnemy;
     private String mLockedEnemy;
     private double mScanDir;
+    private long mLockTime;
 
     public OldestScannedRadar(TestRobot _robot) {
         mRobot = _robot;
@@ -36,7 +37,7 @@ public class OldestScannedRadar implements Radar {
             mRobot.setTurnRadarRight(mScanDir * Double.POSITIVE_INFINITY);
             mRobot.scan();
         } else if (mRobot.getRadarTurnRemainingRadians() == 0) {
-           // System.out.println("- Locked: RadarTurnRemaingRadians = "+mRobot.getRadarTurnRemainingRadians());
+            // System.out.println("- Locked: RadarTurnRemaingRadians = "+mRobot.getRadarTurnRemainingRadians());
             mRobot.setTurnRadarRightRadians(Double.POSITIVE_INFINITY);
         }
     }
@@ -50,29 +51,34 @@ public class OldestScannedRadar implements Radar {
         }
     }
 
+    @Override
     public void lock(String enemyName) {
-       //System.out.println("Locked at " + enemyName);
         mLockedEnemy = enemyName;
+        mLockTime = mRobot.getTime();
     }
 
+    @Override
+    public long getLockTime() {
+        return mLockTime;
+    }
+
+
     public void unlock() {
-       // System.out.println("\n---Unlocked");
         mLockedEnemy = "";
     }
 
     @Override
     public void scannedRobot(ScannedRobotEvent _event) {
-
         if (isLocked()) {
             boolean isLockedEnemy = _event.getName().equals(mLockedEnemy);
-            /*if (isLockedEnemy) {
+            if (isLockedEnemy) {
 //                System.out.println("Shootin at " + mLockedEnemy);
                 //factor of 2 because Radar arc sweeps through a fixed angle.
                 // Exact angle chosen depends on positions of enemy and radar when enemy is first picked up.
                 // Angle will be increased if necessary to maintain a lock.
                 mScanDir = Utils.normalRelativeAngle(mRobot.getHeadingRadians() + _event.getBearingRadians() - mRobot.getRadarHeadingRadians());
-                mRobot.setTurnRadarRight(2.0 * mScanDir);
-            }*/
+                mRobot.setTurnRadarRightRadians(2.0 * mScanDir);
+            }
             return;
         }
         String scannedName = _event.getName();
@@ -89,7 +95,10 @@ public class OldestScannedRadar implements Radar {
     public boolean isLocked() {
         return !mLockedEnemy.isEmpty();
     }
+
     @Override
-    public String getLockedEnemy(){return mLockedEnemy;}
+    public String getLockedEnemy() {
+        return mLockedEnemy;
+    }
 
 }
