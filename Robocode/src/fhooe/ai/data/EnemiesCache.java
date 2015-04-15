@@ -3,7 +3,7 @@ package fhooe.ai.data;
 import java.util.Map;
 import java.util.TreeMap;
 
-import fhooe.ai.TestRobot;
+import fhooe.ai.Bozilla;
 import robocode.ScannedRobotEvent;
 
 /**
@@ -12,11 +12,11 @@ import robocode.ScannedRobotEvent;
 public class EnemiesCache {
     private final TreeMap<String, Enemy> mNameEnemyMap = new TreeMap<String, Enemy>();
 
-    public EnemiesCache(TestRobot _robot) {
+    public EnemiesCache(Bozilla _robot) {
         mRobot = _robot;
     }
 
-    private final TestRobot mRobot;
+    private final Bozilla mRobot;
 
 
     public Map<String, Enemy> getEnemyMap() {

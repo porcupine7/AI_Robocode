@@ -10,6 +10,7 @@ import fhooe.ai.data.EnemiesCache;
 import fhooe.ai.data.Enemy;
 import fhooe.ai.gun.GFTGun;
 import fhooe.ai.gun.Gun;
+import fhooe.ai.gun.LAGun;
 import fhooe.ai.movement.AntiGravityMovement;
 import fhooe.ai.movement.CombinedMovement;
 import fhooe.ai.movement.Direction;
@@ -32,7 +33,7 @@ import robocode.util.Utils;
  * TestRobot - a robot by JJHG
  * A robot for the AI course
  */
-public class TestRobot extends AdvancedRobot {
+public class Bozilla extends AdvancedRobot {
     private final EnemiesCache mEnemiesCache = new EnemiesCache(this);
     private Gun mGun = new GFTGun(this);
     private AntiGravityMovement mAntiGravityMovement;

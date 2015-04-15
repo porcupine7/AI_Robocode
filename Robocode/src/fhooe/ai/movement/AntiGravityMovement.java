@@ -4,10 +4,10 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
+import fhooe.ai.Bozilla;
 import fhooe.ai.data.Enemy;
 import fhooe.ai.GravityPoint;
 import fhooe.ai.util.MyUtils;
-import fhooe.ai.TestRobot;
 import robocode.util.Utils;
 
 /**
@@ -15,11 +15,11 @@ import robocode.util.Utils;
  */
 public class AntiGravityMovement {
 
-    private TestRobot mRobot;
+    private Bozilla mRobot;
 
     List<GravityPoint> mCorners = new ArrayList<>(4);
 
-    public AntiGravityMovement(TestRobot _robot) {
+    public AntiGravityMovement(Bozilla _robot) {
         mRobot = _robot;
         mGravityCenter = new GravityPoint(mRobot.getPosition(), 0);
         mCorners.add(new GravityPoint(new Point2D.Double(0, 0), -80000));

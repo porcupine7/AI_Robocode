@@ -1,6 +1,6 @@
 package fhooe.ai.gun;
 
-import fhooe.ai.TestRobot;
+import fhooe.ai.Bozilla;
 import robocode.ScannedRobotEvent;
 import robocode.util.Utils;
 
@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class DepriGun implements  Gun {
 
-    private final TestRobot mRobot;
+    private final Bozilla mRobot;
     /**
      * waves for robots gun
      */
@@ -24,9 +24,15 @@ public class DepriGun implements  Gun {
     // Note: this must be odd number so we can get
     // GuessFactor 0 at middle.
     private int direction = 1;
-    public DepriGun(TestRobot _robot){
+    public DepriGun(Bozilla _robot){
         mRobot=_robot;
     }
+
+    @Override
+    public double estimateFirePower(double _enemyDistance) {
+        return 0;
+    }
+
     @Override
     public void scannedRobot(ScannedRobotEvent e) {
         // Enemy absolute bearing, you can use your one if you already declare it.

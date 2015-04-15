@@ -12,8 +12,6 @@ import java.util.ArrayList;
  * Created by Christian on 14.04.2015.
  */
 public class LAGun implements Gun{
-    final static double FIRE_POWER=2;
-    final static double FIRE_SPEED=20-FIRE_POWER*3;
     final static double BULLET_DAMAGE=10;
     final AdvancedRobot mRobot;
     static double enemyEnergy;
@@ -27,6 +25,12 @@ public class LAGun implements Gun{
     public LAGun(AdvancedRobot _robot){
         mRobot=_robot;
         enemyEnergy=100;
+    }
+
+    @Override
+    public double estimateFirePower(double _enemyDistance) {
+        double firePower = (BULLET_MAX_POWER - (_enemyDistance/MAXIMAL_ENEMY_DISTANCE)*BULLET_MAX_POWER);
+        return firePower < BULLET_MIN_POWER ? BULLET_MIN_POWER : firePower;
     }
 
     @Override
@@ -50,7 +54,7 @@ public class LAGun implements Gun{
 		 */
         mRobot.setTurnGunRightRadians(Utils.normalRelativeAngle(absBearing-mRobot.getGunHeadingRadians())
                 +gunAngles[8+(int)(e.getVelocity()*Math.sin(e.getHeadingRadians()-absBearing))]);
-        mRobot.setFire(FIRE_POWER);
+        mRobot.setFire(estimateFirePower(e.getDistance()));
 
         mRobot.setTurnRadarRightRadians(Utils.normalRelativeAngle(absBearing-mRobot.getRadarHeadingRadians())*2);
 
@@ -115,7 +119,7 @@ public class LAGun implements Gun{
     public void logFiringWave(ScannedRobotEvent e){
         GunWave w=new GunWave();
         w.absBearing=e.getBearingRadians()+mRobot.getHeadingRadians();
-        w.speed=FIRE_SPEED;
+        w.speed=20-estimateFirePower(e.getDistance())*3;
         w.origin=new Point2D.Double(mRobot.getX(),mRobot.getY());
         w.velSeg=(int)(e.getVelocity()*Math.sin(e.getHeadingRadians()-w.absBearing));
         w.startTime=mRobot.getTime();
