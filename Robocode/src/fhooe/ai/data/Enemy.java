@@ -22,6 +22,17 @@ public class Enemy {
   private ScannedRobotEvent mCurEvent;
   private ScannedRobotEvent mLastEvent;
 
+  public double getLastShootingTime() {
+    return mLastShootingTime;
+  }
+
+  public void setLastShootingTime(double _lastShootingTime) {
+    mLastShootingTime = _lastShootingTime;
+  }
+
+  private double mLastShootingTime;
+
+
 //  public double getGunHeat() {
 //    return mGunHeat;
 //  }

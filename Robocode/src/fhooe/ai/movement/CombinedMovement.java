@@ -67,15 +67,13 @@ public class CombinedMovement {
                 mDirectionChange = 0;
             }
 
-        }   else
-        if (mProblemMode && myTick > 5) {
+        } else if (mProblemMode && myTick > 5) {
             mOffsetAngle = 0;
             mDirectionChange = 0;
             myTick = 0;
             mProblemMode = false;
             System.out.println("Problem mode off");
         }
-
 
 
 // endregion
@@ -87,7 +85,7 @@ public class CombinedMovement {
         double gravityForce = gravityPoint.getPower() / 50f;
 
         //surferMovement
-        mSurferAngle = mSurferMovement.getSurfDirection();
+        mSurferAngle = mSurferMovement.getSurfAngle();
 
 
         if (gravityForce > 2) {
@@ -96,26 +94,30 @@ public class CombinedMovement {
             mOffsetAngle = 0;
         }
         mGravityAngle = MyUtils.normaliseHeading(mGravityAngle);
-        mSurferAngle = MyUtils.normaliseHeading(mSurferAngle);
 
         //accumulate movement
+        if (gravityForce < 0.5) {
+            mActualAngle = mSurferAngle;
+            if (log)
+                System.out.println("surfing only");
+        }else
         if (gravityForce > 1) {
             //gravity force very big, ignore wave surfing
             mActualAngle = mGravityAngle - mOffsetAngle;
+            if (log)
+                System.out.println("gravity only");
+
         } else {
             mActualAngle = (mSurferAngle * (1 - gravityForce)) + (mGravityAngle * gravityForce) - mOffsetAngle;
+            if (log)
+                System.out.println("combined");
         }
-
 
         turnAndMove(mActualAngle);
 
 
         if (log) {
             System.out.println("gravity influence: " + gravityForce);
-            System.out.println("angle gravity: " + mGravityAngle);
-            System.out.println("angle surfer: " + mSurferAngle);
-            System.out.println("dir " + mDirection);
-            System.out.println("angle accumulated: " + mActualAngle);
 
         }
 
@@ -123,13 +125,11 @@ public class CombinedMovement {
     }
 
 
-    public void turnAndMove(double goAngle) {
+    public void turnAndMove(double absAngle) {
 
-
-        int pointDir;
-        mRobot.setAhead(1000 * (pointDir = (Math.abs(goAngle - mRobot.getHeadingRadians()) < Math.PI / 2 ? 1 : -1)));
-        mRobot.setTurnRightRadians(Utils.normalRelativeAngle(goAngle + (pointDir == -1 ? Math.PI : 0) - mRobot.getHeadingRadians()));
-
+        int pointDir = (Math.abs(absAngle - mRobot.getHeadingRadians()) < Math.PI / 2 ? 1 : -1);
+        mRobot.setAhead(100 * pointDir);
+        mRobot.setTurnRightRadians(Utils.normalRelativeAngle(absAngle + (pointDir == -1 ? Math.PI : 0) - mRobot.getHeadingRadians()));
         Direction newDirection = Direction.fromInt(pointDir);
 
         if (newDirection != mDirection) {
@@ -142,57 +142,51 @@ public class CombinedMovement {
 
     public void draw(Graphics2D _g) {
 
-        //draw dead zone
-//        _g.setColor(new Color(1, 0, 0, 0.5f));
-//        _g.fillRect(0, 0, (int) mRobot.getBattleFieldWidth(), WALL_DEAD_ZONE);
-//        _g.fillRect(0, (int) (mRobot.getBattleFieldHeight() - WALL_DEAD_ZONE), (int) mRobot.getBattleFieldWidth(), WALL_DEAD_ZONE);
-//        _g.fillRect(0, 0, WALL_DEAD_ZONE, (int) mRobot.getBattleFieldHeight());
-//        _g.fillRect((int) (mRobot.getBattleFieldWidth() - WALL_DEAD_ZONE), 0, WALL_DEAD_ZONE, (int) mRobot.getBattleFieldHeight());
-//        _g.setColor(Color.GREEN);
+        if (log) {
 
 
 //        //draw direction stick
-        if (mDirection == Direction.FORWARD) {
+            if (mDirection == Direction.FORWARD) {
 
-            Point2D.Double stickEnd = MyUtils.project(mRobot.getPosition(), mRobot.getHeadingRadians(), 50);
-            Point2D.Double stickStart = mRobot.getPosition();
-            _g.drawLine((int) stickStart.getX(), (int) stickStart.getY(), (int) stickEnd.getX(), (int) stickEnd.getY());
+                Point2D.Double stickEnd = MyUtils.project(mRobot.getPosition(), mRobot.getHeadingRadians(), 50);
+                Point2D.Double stickStart = mRobot.getPosition();
+                _g.drawLine((int) stickStart.getX(), (int) stickStart.getY(), (int) stickEnd.getX(), (int) stickEnd.getY());
 
-        } else if (mDirection == Direction.BACKWARD) {
-            Point2D.Double stickEnd = mRobot.getPosition();
-            Point2D.Double stickStart = MyUtils.project(mRobot.getPosition(), mRobot.getHeadingRadians(), -50);
-            _g.drawLine((int) stickStart.getX(), (int) stickStart.getY(), (int) stickEnd.getX(), (int) stickEnd.getY());
+            } else if (mDirection == Direction.BACKWARD) {
+                Point2D.Double stickEnd = mRobot.getPosition();
+                Point2D.Double stickStart = MyUtils.project(mRobot.getPosition(), mRobot.getHeadingRadians(), -50);
+                _g.drawLine((int) stickStart.getX(), (int) stickStart.getY(), (int) stickEnd.getX(), (int) stickEnd.getY());
+            }
+
+
+            //draw gravity pull
+            _g.setColor(Color.red);
+            int d = 10;
+            _g.fillOval((int) mGravityMovement.getGravityCenter().getPosition().getX() - (d / 2), (int) mGravityMovement.getGravityCenter().getPosition().getY() - (d / 2), d, d);
+            _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) mGravityMovement.getGravityCenter().getPosition().getX(), (int) mGravityMovement.getGravityCenter().getPosition().getY());
+
+
+            // draw surf pull
+            _g.setColor(Color.blue);
+            Point2D pointSurf = MyUtils.project(mRobot.getPosition(), mSurferAngle, (1 - mGravityMovement.getGravityCenter().getPower()) * 10);
+            _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) pointSurf.getX(), (int) pointSurf.getY());
+            _g.fillOval((int) pointSurf.getX() - (d / 2), (int) pointSurf.getY() - (d / 2), d, d);
+
+
+            // draw actual direction
+            _g.setColor(Color.yellow);
+            Point2D pointAct = MyUtils.project(mRobot.getPosition(), mActualAngle, 100);
+            _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) pointAct.getX(), (int) pointAct.getY());
+            _g.fillOval((int) pointAct.getX() - (d / 2), (int) pointAct.getY() - (d / 2), d, d);
+
+            //draw problem mode indicator
+            if (mProblemMode) {
+                d = 20;
+                _g.setColor(Color.ORANGE);
+                _g.fillOval((int) mRobot.getPosition().getX() - (d / 2), (int) mRobot.getPosition().getY() - (d / 2), d, d);
+            }
+
         }
-
-
-        //draw gravity pull
-        _g.setColor(Color.red);
-
-        int d = 10;
-        _g.fillOval((int) mGravityMovement.getGravityCenter().getPosition().getX() - (d / 2), (int) mGravityMovement.getGravityCenter().getPosition().getY() - (d / 2), d, d);
-        _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) mGravityMovement.getGravityCenter().getPosition().getX(), (int) mGravityMovement.getGravityCenter().getPosition().getY());
-
-
-        // draw surf pull
-        _g.setColor(Color.blue);
-        Point2D pointSurf = MyUtils.project(mRobot.getPosition(), mSurferAngle, 1 - mGravityMovement.getGravityCenter().getPower());
-        _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) pointSurf.getX(), (int) pointSurf.getY());
-        _g.fillOval((int) pointSurf.getX() - (d / 2), (int) pointSurf.getY() - (d / 2), d, d);
-
-
-        // draw actual direction
-        _g.setColor(Color.yellow);
-        Point2D pointAct = MyUtils.project(mRobot.getPosition(), mActualAngle, 1000);
-        _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) pointAct.getX(), (int) pointAct.getY());
-        _g.fillOval((int) pointAct.getX() - (d / 2), (int) pointAct.getY() - (d / 2), d, d);
-
-        //draw problem mode indicator
-        if (mProblemMode) {
-            d=20;
-            _g.setColor(Color.ORANGE);
-            _g.fillOval((int) mRobot.getPosition().getX() - (d / 2), (int) mRobot.getPosition().getY() - (d / 2), d, d);
-        }
-
 
     }
 

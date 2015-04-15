@@ -142,7 +142,7 @@ public class TestRobot extends AdvancedRobot {
 
         double absBearing=e.getBearingRadians()+getHeadingRadians();
         setTurnGunRightRadians(Utils.normalRelativeAngle(absBearing - getGunHeadingRadians()));
-        setFire(2);
+//        setFire(2);
     }
 
     @Override
@@ -175,16 +175,16 @@ public class TestRobot extends AdvancedRobot {
         g.drawOval((int)getBattleFieldWidth()/2-50,(int)getBattleFieldHeight()/2-50,100,100);
 
         //draw waves
-//        for (EnemyBulletWave bulletWave : mBulletWaves) {
-//            int d = (int) bulletWave.getDistanceTraveled(getTime()+1)*2;
-//            g.drawOval((int) bulletWave.getFireLocation().getX() - (d / 2), (int) bulletWave.getFireLocation().getY() - (d / 2), d, d);
-//
-//            double rotation = -bulletWave.getDirectAngle();
-//            g.rotate(rotation, bulletWave.getFireLocation().getX(), bulletWave.getFireLocation().getY());
-//
-//            g.drawLine((int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY(), (int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY()+100);
-//            g.rotate(-rotation, bulletWave.getFireLocation().getX(), bulletWave.getFireLocation().getY());
-//        }
+        for (EnemyBulletWave bulletWave : mBulletWaves) {
+            int d = (int) bulletWave.getDistanceTraveled(getTime()+1)*2;
+            g.drawOval((int) bulletWave.getFireLocation().getX() - (d / 2), (int) bulletWave.getFireLocation().getY() - (d / 2), d, d);
+
+            double rotation = -bulletWave.getDirectAngle();
+            g.rotate(rotation, bulletWave.getFireLocation().getX(), bulletWave.getFireLocation().getY());
+
+            g.drawLine((int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY(), (int) bulletWave.getFireLocation().getX(), (int) bulletWave.getFireLocation().getY()+100);
+            g.rotate(-rotation, bulletWave.getFireLocation().getX(), bulletWave.getFireLocation().getY());
+        }
 
         // draw enemy positions
         for (Enemy enemy : mEnemiesCache.getEnemyMap().values()) {
@@ -192,6 +192,7 @@ public class TestRobot extends AdvancedRobot {
             g.drawOval((int)enemy.getPosition().getX()-(d/2),(int)enemy.getPosition().getY()-(d/2),d,d);
         }
 
+       mSurferMovement.draw(g);
         mCombinedMovement.draw(g);
     }
 }
