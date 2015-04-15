@@ -147,7 +147,7 @@ System.out.println("");
         int pointDir = (Math.abs(absAngle - mRobot.getHeadingRadians()) < Math.PI / 2 ? 1 : -1);
         Direction newDirection = Direction.fromInt(pointDir);
 
-        if(newDirection != mDirection && (mRobot.getTime() - mLastDirChange < 17)) {
+        if(newDirection != mDirection && (mRobot.getTime() - mLastDirChange < 18)) {
             pointDir *= -1;
         }
         newDirection = Direction.fromInt(pointDir);
@@ -166,6 +166,35 @@ System.out.println("");
 
     }
 
+    private   void setBackAsFront(AdvancedRobot robot, double goAngle) {
+        double angle =
+                Utils.normalRelativeAngle(goAngle - robot.getHeadingRadians());
+        Direction newDirection;
+        if (Math.abs(angle) > (Math.PI/2)) {
+            if (angle < 0) {
+                robot.setTurnRightRadians(Math.PI + angle);
+            } else {
+                robot.setTurnLeftRadians(Math.PI - angle);
+            }
+            robot.setBack(100);
+            newDirection = Direction.BACKWARD;
+        } else {
+            if (angle < 0) {
+                robot.setTurnLeftRadians(-1*angle);
+            } else {
+                robot.setTurnRightRadians(angle);
+            }
+            newDirection = Direction.FORWARD;
+            robot.setAhead(100);
+        }
+
+        if (newDirection != mDirection) {
+            mDirection = newDirection;
+            mRobot.setDirection(mDirection);
+            mDirectionChange++;
+            mLastDirChange = mRobot.getTime();
+        }
+    }
 
     public void draw(Graphics2D _g) {
 
@@ -231,25 +260,7 @@ System.out.println("");
 
     }
 
-    private   void setBackAsFront(AdvancedRobot robot, double goAngle) {
-        double angle =
-                Utils.normalRelativeAngle(goAngle - robot.getHeadingRadians());
-        if (Math.abs(angle) > (Math.PI/2)) {
-            if (angle < 0) {
-                robot.setTurnRightRadians(Math.PI + angle);
-            } else {
-                robot.setTurnLeftRadians(Math.PI - angle);
-            }
-            robot.setBack(100);
-        } else {
-            if (angle < 0) {
-                robot.setTurnLeftRadians(-1*angle);
-            } else {
-                robot.setTurnRightRadians(angle);
-            }
-            robot.setAhead(100);
-        }
-    }
+
     public void newWave() {
         mLastDirChange = 0;
     }
