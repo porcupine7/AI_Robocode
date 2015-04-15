@@ -46,6 +46,7 @@ public class GFTGun implements Gun {
         wave.gunLocation = new Point2D.Double(mRobot.getX(), mRobot.getY());
         GFTWave.targetLocation = GFTUtils.project(wave.gunLocation, enemyAbsoluteBearing, enemyDistance);
         wave.lateralDirection = lateralDirection;
+        double firePower = BULLET_POWER;
         wave.bulletPower = BULLET_POWER;
         wave.setSegmentations(enemyDistance, enemyVelocity, lastEnemyVelocity);
         lastEnemyVelocity = enemyVelocity;
@@ -55,7 +56,7 @@ public class GFTGun implements Gun {
         if (mRobot.getEnergy() >= BULLET_POWER) {
             mRobot.addCustomEvent(wave);
         }
-        movement.onScannedRobot(e);
+        //movement.onScannedRobot(e);
         mRobot.setTurnRadarRightRadians(Utils.normalRelativeAngle(enemyAbsoluteBearing - mRobot.getRadarHeadingRadians()) * 2);
 
     }
