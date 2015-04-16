@@ -33,7 +33,7 @@ import robocode.util.Utils;
  * TestRobot - a robot by JJHG
  * A robot for the AI course
  */
-public class Bozilla extends AdvancedRobot {
+public class Botzilla extends AdvancedRobot {
     private final EnemiesCache mEnemiesCache = new EnemiesCache(this);
     private Gun mGun = new GFTGun(this);
     private AntiGravityMovement mAntiGravityMovement;

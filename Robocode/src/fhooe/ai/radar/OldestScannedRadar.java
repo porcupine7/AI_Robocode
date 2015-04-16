@@ -3,7 +3,7 @@ package fhooe.ai.radar;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import fhooe.ai.Bozilla;
+import fhooe.ai.Botzilla;
 import robocode.ScannedRobotEvent;
 import robocode.util.Utils;
 
@@ -11,7 +11,7 @@ import robocode.util.Utils;
  * Created by andi on 31.03.2015.
  */
 public class OldestScannedRadar implements Radar {
-    private final Bozilla mRobot;
+    private final Botzilla mRobot;
     private final Map<String, Double> mEnemyToBearingMap;
 
     private String mSoughtEnemy;
@@ -19,7 +19,7 @@ public class OldestScannedRadar implements Radar {
     private double mScanDir;
     private long mLockTime;
 
-    public OldestScannedRadar(Bozilla _robot) {
+    public OldestScannedRadar(Botzilla _robot) {
         mRobot = _robot;
         mSoughtEnemy = "";
         mLockedEnemy = "";

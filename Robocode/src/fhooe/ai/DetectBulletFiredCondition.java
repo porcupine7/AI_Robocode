@@ -13,14 +13,14 @@ import robocode.Rules;
  * Created by Jakob on 31.03.2015.
  */
 public class DetectBulletFiredCondition extends Condition {
-    private Bozilla mRobot;
+    private Botzilla mRobot;
     private List<EnemyBulletWave> mDetectedWaves = new ArrayList<>();
 
-    public DetectBulletFiredCondition(Bozilla robot) {
+    public DetectBulletFiredCondition(Botzilla robot) {
         this.mRobot = robot;
     }
 
-    public DetectBulletFiredCondition(Bozilla robot, int priority) {
+    public DetectBulletFiredCondition(Botzilla robot, int priority) {
         this.mRobot = robot;
         this.priority = priority;
     }

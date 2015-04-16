@@ -1,6 +1,6 @@
 package fhooe.ai.gun;
 
-import fhooe.ai.Bozilla;
+import fhooe.ai.Botzilla;
 import robocode.ScannedRobotEvent;
 import robocode.util.Utils;
 
@@ -15,19 +15,14 @@ public class GFTGun implements Gun {
     private static double lateralDirection;
     private static double lastEnemyVelocity;
 
-    private final Bozilla mRobot;
+    private final Botzilla mRobot;
 
 
 
-    public GFTGun(Bozilla _robot){
+    public GFTGun(Botzilla _robot){
         mRobot=_robot;
     }
 
-    /**
-     *
-     * FROM GFTargetingBot
-     * @param e
-     */
     private void guessFactorTargeting(ScannedRobotEvent e){
         double enemyAbsoluteBearing = mRobot.getHeadingRadians() + e.getBearingRadians();
         double enemyDistance = e.getDistance();
@@ -53,10 +48,6 @@ public class GFTGun implements Gun {
             System.out.println("---- Shot with power: " + wave.bulletPower);
 
         }
-
-        // radar controlling is handled in RADAR :)
-        //mRobot.setTurnRadarRightRadians(Utils.normalRelativeAngle(enemyAbsoluteBearing - mRobot.getRadarHeadingRadians()) * 2);
-
     }
 
 

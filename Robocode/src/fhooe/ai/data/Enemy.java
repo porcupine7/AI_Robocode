@@ -4,7 +4,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import fhooe.ai.Bozilla;
+import fhooe.ai.Botzilla;
 import fhooe.ai.GravityPoint;
 import fhooe.ai.util.MyUtils;
 import robocode.ScannedRobotEvent;
@@ -93,7 +93,7 @@ public class Enemy {
     return mLastEvent;
   }
 
-  public void addScanEvent(ScannedRobotEvent _event, Bozilla _robot) {
+  public void addScanEvent(ScannedRobotEvent _event, Botzilla _robot) {
     mLastEvent = mCurEvent;
     mCurEvent = _event;
     mScanEvents.add(_event);
