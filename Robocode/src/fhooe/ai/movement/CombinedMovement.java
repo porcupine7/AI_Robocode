@@ -98,7 +98,6 @@ System.out.println("gF "+gravityForce);
             mOffsetAngle = 0;
         }
         mGravityAngle = MyUtils.normaliseHeading(mGravityAngle);
-System.out.println("");
         //accumulate movement
 
         if (Double.isNaN(mSurferAngle)) {
@@ -123,7 +122,11 @@ System.out.println("");
             turnAndMove( MyUtils.normaliseHeading(mActualAngle));
 
         } else {
-            mActualAngle = (mSurferAngle * (1 - gravityForce)) + (mGravityAngle * gravityForce) - mOffsetAngle;
+
+            double angleDiff = mSurferAngle - mGravityAngle;
+
+            mActualAngle = mSurferAngle - (angleDiff * gravityForce);
+
             if (log)
                 System.out.println("combined");
             turnAndMove( MyUtils.normaliseHeading(mActualAngle));
@@ -217,10 +220,10 @@ System.out.println("");
 
 
             // draw actual direction
-            _g.setColor(Color.yellow);
-            Point2D pointAct = MyUtils.project(mRobot.getPosition(), mDrawAngle, 100);
-            _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) pointAct.getX(), (int) pointAct.getY());
-            _g.fillOval((int) pointAct.getX() - (d / 2), (int) pointAct.getY() - (d / 2), d, d);
+//            _g.setColor(Color.yellow);
+//            Point2D pointAct = MyUtils.project(mRobot.getPosition(), mDrawAngle, 100);
+//            _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) pointAct.getX(), (int) pointAct.getY());
+//            _g.fillOval((int) pointAct.getX() - (d / 2), (int) pointAct.getY() - (d / 2), d, d);
 
 
             //draw gravity pull
