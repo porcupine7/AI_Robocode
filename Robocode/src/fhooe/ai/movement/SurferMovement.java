@@ -5,8 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import fhooe.ai.Botzilla;
 import fhooe.ai.EnemyBulletWave;
-import fhooe.ai.TestRobot;
 import fhooe.ai.util.MyUtils;
 import robocode.util.Utils;
 
@@ -26,7 +26,7 @@ public class SurferMovement {
     public static int WALL_DEAD_ZONE = 60;
     public static int BINS = 47; // SEGMENTS
     public static double mSurfStats[] = new double[BINS];
-    private TestRobot mRobot;
+    private Botzilla mRobot;
 
     private double mSurfAngle = Double.NaN;
     private Direction mSurfDirection;
@@ -37,7 +37,7 @@ public class SurferMovement {
 
     private CombinedMovement mCombinedMovement;
 
-    public SurferMovement(TestRobot _robot) {
+    public SurferMovement(Botzilla _robot) {
         mRobot = _robot;
         mPlayField
                 = new Rectangle2D.Double(WALL_DEAD_ZONE, WALL_DEAD_ZONE, mRobot.getBattleFieldWidth() - (WALL_DEAD_ZONE * 2), mRobot.getBattleFieldHeight() - (WALL_DEAD_ZONE * 2));

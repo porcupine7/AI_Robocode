@@ -5,8 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.util.Random;
 
+import fhooe.ai.Botzilla;
 import fhooe.ai.GravityPoint;
-import fhooe.ai.TestRobot;
 import fhooe.ai.util.MyUtils;
 import robocode.AdvancedRobot;
 import robocode.util.Utils;
@@ -17,7 +17,7 @@ import robocode.util.Utils;
 public class CombinedMovement {
 
     public static final boolean log = true;
-    private TestRobot mRobot;
+    private Botzilla mRobot;
     private AntiGravityMovement mGravityMovement;
     private SurferMovement mSurferMovement;
     // current movement direction
@@ -38,7 +38,7 @@ public class CombinedMovement {
     private double mDrawAngle;
     private long mLastDirChange;
 
-    public CombinedMovement(TestRobot _robot, AntiGravityMovement _gravityMovement, SurferMovement _surferMovement) {
+    public CombinedMovement(Botzilla _robot, AntiGravityMovement _gravityMovement, SurferMovement _surferMovement) {
         mRobot = _robot;
         mGravityMovement = _gravityMovement;
         mSurferMovement = _surferMovement;

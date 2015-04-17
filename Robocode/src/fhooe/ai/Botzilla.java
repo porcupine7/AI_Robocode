@@ -10,6 +10,7 @@ import fhooe.ai.data.EnemiesCache;
 import fhooe.ai.data.Enemy;
 import fhooe.ai.gun.GFTGun;
 import fhooe.ai.gun.Gun;
+import fhooe.ai.gun.LAGun;
 import fhooe.ai.movement.AntiGravityMovement;
 import fhooe.ai.movement.CombinedMovement;
 import fhooe.ai.movement.Direction;
@@ -32,14 +33,19 @@ import robocode.util.Utils;
  * TestRobot - a robot by JJHG
  * A robot for the AI course
  */
-public class TestRobot extends AdvancedRobot {
+public class Botzilla extends AdvancedRobot {
     private final EnemiesCache mEnemiesCache = new EnemiesCache(this);
     private Gun mGun = new GFTGun(this);
     private AntiGravityMovement mAntiGravityMovement;
     private SurferMovement mSurferMovement;
     private List<EnemyBulletWave> mBulletWaves = new ArrayList<>();
     private Radar mRadar;
-    public Radar getRadar(){return mRadar;}
+    private long mScanTime;
+
+    public Radar getRadar() {
+        return mRadar;
+    }
+
     private CombinedMovement mCombinedMovement;
 
     public Enemy getMainEnemy() {
@@ -81,6 +87,7 @@ public class TestRobot extends AdvancedRobot {
 //        setAdjustGunForRobotTurn(true);
         setAdjustRadarForRobotTurn(true);
 
+        mScanTime = 0;
         //initialize movement strategies
         mAntiGravityMovement = new AntiGravityMovement(this);
         mSurferMovement = new SurferMovement(this);
@@ -91,12 +98,9 @@ public class TestRobot extends AdvancedRobot {
         mRadar.init();
 
 
-
         // Robot main loop
         while (true) {
             mRadar.doScan();
-            //turnRadarRightRadians(Double.POSITIVE_INFINITY);
-
             mAntiGravityMovement.doAntiGravity();
             mSurferMovement.doSurfing();
 
@@ -143,31 +147,44 @@ public class TestRobot extends AdvancedRobot {
      */
     public void onHitWall(HitWallEvent e) {
     }
-    
+
+
     /**
      * onScannedRobot: What to do when you see another robot
      */
     public void onScannedRobot(ScannedRobotEvent event) {
         mEnemiesCache.addEvent(event);
-        if (getGunHeat() < 1) {
-            mRadar.lock(event.getName());
-            //System.out.println("-- Lock Gun Heat: "+getGunHeat());
-        } else {
+        //mRadar.lock(mEnemiesCache.getNearestEnemy());
+        if (!mRadar.isLocked() && getTime() > mScanTime + 5) {
+            System.out.println("Lock at " + getTime());
+            mRadar.lock(mEnemiesCache.getNearestEnemy());
+        }
+        if (mRadar.isLocked() && getTime() > mRadar.getLockTime() + 100 && !mEnemiesCache.oneRemaining()) {
+            System.out.println("Unlock at " + getTime());
             mRadar.unlock();
-            //System.out.println("-- Unlock Gun Heat: "+getGunHeat());
+            mScanTime = getTime();
+        }
+        if (shouldLock()) {
+            //mRadar.lock(event.getName());
+        } else {
+            //mRadar.unlock();
         }
         mRadar.scannedRobot(event);
         mGun.scannedRobot(event);
         //simpleTarget(e);
     }
-    private void simpleTarget(ScannedRobotEvent event){
+
+    private boolean shouldLock() {
+        return mEnemiesCache.oneRemaining();
+    }
+
+    private void simpleTarget(ScannedRobotEvent event) {
         double absBearing = event.getBearingRadians() + getHeadingRadians();
         setTurnGunRightRadians(Utils.normalRelativeAngle(absBearing - getGunHeadingRadians()));
         //Fire at target with power varying with distance.
-        if (event.getDistance() < 100 ) {
+        if (event.getDistance() < 100) {
             fire(2);
-        }
-        else  {
+        } else {
 //            fire(1);
         }
     }
