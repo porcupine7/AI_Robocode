@@ -146,8 +146,7 @@ public class Botzilla extends AdvancedRobot {
      */
     public void onHitWall(HitWallEvent e) {
     }
-
-
+    
     /**
      * onScannedRobot: What to do when you see another robot
      */
@@ -170,23 +169,12 @@ public class Botzilla extends AdvancedRobot {
         }
         mRadar.scannedRobot(event);
         mGun.scannedRobot(event);
-        //simpleTarget(e);
     }
 
     private boolean shouldLock() {
         return mEnemiesCache.oneRemaining();
     }
 
-    private void simpleTarget(ScannedRobotEvent event) {
-        double absBearing = event.getBearingRadians() + getHeadingRadians();
-        setTurnGunRightRadians(Utils.normalRelativeAngle(absBearing - getGunHeadingRadians()));
-        //Fire at target with power varying with distance.
-        if (event.getDistance() < 100) {
-            fire(2);
-        } else {
-//            fire(1);
-        }
-    }
 
     @Override
     public void onRobotDeath(RobotDeathEvent event) {
@@ -215,7 +203,7 @@ public class Botzilla extends AdvancedRobot {
     public void onPaint(Graphics2D g) {
         super.onPaint(g);
         //draw center
-        g.drawOval((int) getBattleFieldWidth() / 2 - 50, (int) getBattleFieldHeight() / 2 - 50, 100, 100);
+//        g.drawOval((int) getBattleFieldWidth() / 2 - 50, (int) getBattleFieldHeight() / 2 - 50, 100, 100);
 
         //draw waves
         for (EnemyBulletWave bulletWave : mBulletWaves) {
