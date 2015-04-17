@@ -1,17 +1,17 @@
 package fhooe.ai.gun;
 
+import java.awt.geom.Point2D;
+
 import fhooe.ai.Botzilla;
 import robocode.ScannedRobotEvent;
 import robocode.util.Utils;
-
-import java.awt.geom.Point2D;
 
 /**
  * Created by Christian on 14.04.2015.
  * GuessFactor Targeting gun with basic segmentation
  */
 public class GFTGun implements Gun {
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     private static double lateralDirection;
     private static double lastEnemyVelocity;
 

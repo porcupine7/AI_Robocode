@@ -24,7 +24,6 @@ import robocode.RadarTurnCompleteCondition;
 import robocode.RobotDeathEvent;
 import robocode.Rules;
 import robocode.ScannedRobotEvent;
-import robocode.util.Utils;
 
 // API help : http://robocode.sourceforge.net/docs/robocode/robocode/Robot.html
 
@@ -146,7 +145,7 @@ public class Botzilla extends AdvancedRobot {
      */
     public void onHitWall(HitWallEvent e) {
     }
-    
+
     /**
      * onScannedRobot: What to do when you see another robot
      */
@@ -154,11 +153,11 @@ public class Botzilla extends AdvancedRobot {
         mEnemiesCache.addEvent(event);
         //mRadar.lock(mEnemiesCache.getNearestEnemy());
         if (!mRadar.isLocked() && getTime() > mScanTime + 5) {
-            System.out.println("Lock at " + getTime());
+//            System.out.println("Lock at " + getTime());
             mRadar.lock(mEnemiesCache.getNearestEnemy());
         }
         if (mRadar.isLocked() && getTime() > mRadar.getLockTime() + 100 && !mEnemiesCache.oneRemaining()) {
-            System.out.println("Unlock at " + getTime());
+//            System.out.println("Unlock at " + getTime());
             mRadar.unlock();
             mScanTime = getTime();
         }

@@ -16,7 +16,7 @@ import robocode.util.Utils;
  */
 public class CombinedMovement {
 
-    public static final boolean log = true;
+    public static final boolean log = false;
     private Botzilla mRobot;
     private AntiGravityMovement mGravityMovement;
     private SurferMovement mSurferMovement;
@@ -54,7 +54,8 @@ public class CombinedMovement {
 
             if (mDirectionChange > 2) {
                 //danger ahead, turn 90 degree
-                System.out.println("Problem detected");
+                if (log)
+                    System.out.println("Problem detected");
                 if (mRandom.nextFloat() > 0.5) {
                     mOffsetAngle = (Math.PI / 2);
                 } else {
@@ -75,7 +76,8 @@ public class CombinedMovement {
             mDirectionChange = 0;
             myTick = 0;
             mProblemMode = false;
-            System.out.println("Problem mode off");
+            if (log)
+                System.out.println("Problem mode off");
         }
 
 
@@ -86,7 +88,6 @@ public class CombinedMovement {
         GravityPoint gravityPoint = mGravityMovement.getGravityCenter();
         mGravityAngle = MyUtils.absoluteBearing(mRobot.getPosition(), gravityPoint.getPosition());
         double gravityForce = gravityPoint.getPower() / 40f;
-System.out.println("gF "+gravityForce);
 
         //surferMovement
         mSurferAngle = mSurferMovement.getSurfAngle();
@@ -98,29 +99,26 @@ System.out.println("gF "+gravityForce);
             mOffsetAngle = 0;
         }
         mGravityAngle = MyUtils.normaliseHeading(mGravityAngle);
-System.out.println("");
         //accumulate movement
 
         if (Double.isNaN(mSurferAngle)) {
             //no waves, ignore wave surfing
             mActualAngle = mGravityAngle - mOffsetAngle;
-            turnAndMove( MyUtils.normaliseHeading(mActualAngle));
+            turnAndMove(MyUtils.normaliseHeading(mActualAngle));
             if (log)
                 System.out.println("gravity only no wave");
-        }else
-        if (gravityForce < 0.4 ) {
+        } else if (gravityForce < 0.4) {
             //gravity very weak, use only wave surfing
             mActualAngle = mSurferAngle - mOffsetAngle;
             if (log)
                 System.out.println("surfing only");
             setBackAsFront(mRobot, MyUtils.normaliseHeading(mActualAngle));
-        }else
-        if (gravityForce > 1.5) {
+        } else if (gravityForce > 1.5) {
             //gravity very strong, ignore wave surfing
             mActualAngle = mGravityAngle - mOffsetAngle;
             if (log)
                 System.out.println("gravity only");
-            turnAndMove( MyUtils.normaliseHeading(mActualAngle));
+            turnAndMove(MyUtils.normaliseHeading(mActualAngle));
 
         } else {
             double angleDiff = mSurferAngle - mGravityAngle;
@@ -128,12 +126,9 @@ System.out.println("");
             mActualAngle = mSurferAngle - (angleDiff * gravityForce);
             if (log)
                 System.out.println("combined");
-            turnAndMove( MyUtils.normaliseHeading(mActualAngle));
+            turnAndMove(MyUtils.normaliseHeading(mActualAngle));
         }
-        mActualAngle =  MyUtils.normaliseHeading(mActualAngle);
-
-
-
+        mActualAngle = MyUtils.normaliseHeading(mActualAngle);
 
 
         if (log) {
@@ -149,7 +144,7 @@ System.out.println("");
         int pointDir = (Math.abs(absAngle - mRobot.getHeadingRadians()) < Math.PI / 2 ? 1 : -1);
         Direction newDirection = Direction.fromInt(pointDir);
 
-        if(newDirection != mDirection && (mRobot.getTime() - mLastDirChange < 18)) {
+        if (newDirection != mDirection && (mRobot.getTime() - mLastDirChange < 18)) {
             pointDir *= -1;
         }
         newDirection = Direction.fromInt(pointDir);
@@ -168,11 +163,11 @@ System.out.println("");
 
     }
 
-    private   void setBackAsFront(AdvancedRobot robot, double goAngle) {
+    private void setBackAsFront(AdvancedRobot robot, double goAngle) {
         double angle =
                 Utils.normalRelativeAngle(goAngle - robot.getHeadingRadians());
         Direction newDirection;
-        if (Math.abs(angle) > (Math.PI/2)) {
+        if (Math.abs(angle) > (Math.PI / 2)) {
             if (angle < 0) {
                 robot.setTurnRightRadians(Math.PI + angle);
             } else {
@@ -182,7 +177,7 @@ System.out.println("");
             newDirection = Direction.BACKWARD;
         } else {
             if (angle < 0) {
-                robot.setTurnLeftRadians(-1*angle);
+                robot.setTurnLeftRadians(-1 * angle);
             } else {
                 robot.setTurnRightRadians(angle);
             }
@@ -232,7 +227,7 @@ System.out.println("");
             _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) mGravityMovement.getGravityCenter().getPosition().getX(), (int) mGravityMovement.getGravityCenter().getPosition().getY());
 
 
-            if(!Double.isNaN(mSurferAngle)) {
+            if (!Double.isNaN(mSurferAngle)) {
                 // draw surf pull
 
                 if (mDirection == Direction.FORWARD) {
@@ -242,13 +237,12 @@ System.out.println("");
                     _g.fillOval((int) pointSurf.getX() - (d / 2), (int) pointSurf.getY() - (d / 2), d, d);
                 } else {
                     _g.setColor(Color.CYAN);
-                    Point2D pointSurf = MyUtils.project(mRobot.getPosition(), mSurferAngle , (1 - mGravityMovement.getGravityCenter().getPower()) * 10);
+                    Point2D pointSurf = MyUtils.project(mRobot.getPosition(), mSurferAngle, (1 - mGravityMovement.getGravityCenter().getPower()) * 10);
                     _g.drawLine((int) mRobot.getPosition().getX(), (int) mRobot.getPosition().getY(), (int) pointSurf.getX(), (int) pointSurf.getY());
                     _g.fillOval((int) pointSurf.getX() - (d / 2), (int) pointSurf.getY() - (d / 2), d, d);
                 }
 
             }
-
 
 
             //draw problem mode indicator

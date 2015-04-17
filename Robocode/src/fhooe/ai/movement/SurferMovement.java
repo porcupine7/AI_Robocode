@@ -81,11 +81,13 @@ public class SurferMovement {
                 if (wave.getEvadeDirection() == Direction.FORWARD) {
                     // turn 90� from bullet
                     mSurfAngle = wallSmoothing(mRobot.getPosition(), angle + (Math.PI / 2), wave.getEvadeDirection());
-                    System.out.println("wave dir:" + wave.getEvadeDirection());
+                    if (log)
+                         System.out.println("wave dir:" + wave.getEvadeDirection());
                 } else {
                     // turn 90� from bullet
                     mSurfAngle = wallSmoothing(mRobot.getPosition(), angle - (Math.PI / 2), wave.getEvadeDirection());
-                    System.out.println("wave dir:" + wave.getEvadeDirection());
+                    if (log)
+                        System.out.println("wave dir:" + wave.getEvadeDirection());
                 }
                 mSurfAngle = MyUtils.normaliseHeading(mSurfAngle);
                 mSurfDirection = wave.getEvadeDirection();
