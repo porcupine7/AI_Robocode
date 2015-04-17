@@ -123,7 +123,9 @@ System.out.println("");
             turnAndMove( MyUtils.normaliseHeading(mActualAngle));
 
         } else {
-            mActualAngle = (mSurferAngle * (1 - gravityForce)) + (mGravityAngle * gravityForce) - mOffsetAngle;
+            double angleDiff = mSurferAngle - mGravityAngle;
+
+            mActualAngle = mSurferAngle - (angleDiff * gravityForce);
             if (log)
                 System.out.println("combined");
             turnAndMove( MyUtils.normaliseHeading(mActualAngle));

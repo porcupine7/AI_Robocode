@@ -10,7 +10,6 @@ import fhooe.ai.data.EnemiesCache;
 import fhooe.ai.data.Enemy;
 import fhooe.ai.gun.GFTGun;
 import fhooe.ai.gun.Gun;
-import fhooe.ai.gun.LAGun;
 import fhooe.ai.movement.AntiGravityMovement;
 import fhooe.ai.movement.CombinedMovement;
 import fhooe.ai.movement.Direction;
